@@ -16,8 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -117,4 +119,44 @@ func setConfig() {
 		* They are accessible from the user that is running
 		  this program.
 	*/
+	validatePath := func(path string) error {
+		_, err := os.Stat(path)
+		if err == nil {
+			return nil
+		}
+		if os.IsNotExist(err) {
+			return errors.New("Path does not exist.")
+		}
+		return nil
+	}
+
+	promptApiKey := promptui.Prompt{
+		Label:    "Please provide a path towards your Text-to-Speech API key.",
+		Validate: validatePath,
+	}
+
+	promptEnvFile := promptui.Prompt{
+		Label:    "Please provide a path towards your passwords environment file.",
+		Validate: validatePath,
+	}
+
+	apiKeyPath, err := promptApiKey.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return
+	}
+
+	envFilePath, err := promptEnvFile.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return
+	}
+
+	viper.Set("ttsCredentials", apiKeyPath)
+	viper.Set("passwordsEnv", envFilePath)
+	viper.WriteConfig()
+
+	fmt.Println("Configuration file has been written.")
 }
