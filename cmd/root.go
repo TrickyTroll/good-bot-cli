@@ -125,7 +125,7 @@ func setConfig() {
 			return nil
 		}
 		if os.IsNotExist(err) {
-			return errors.New("Path does not exist.")
+			return errors.New("path does not exist")
 		}
 		return nil
 	}
