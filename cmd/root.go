@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -121,22 +120,20 @@ func setConfig() {
 		  this program.
 	*/
 	validatePath := func(path string) error {
-		_, err := filepath.Abs(path)
-		if err == nil {
-			return nil
-		} else if os.IsNotExist(err) {
-			return errors.New("path does not exist")
+		_, err := os.Stat("temp.txt")
+		if os.IsNotExist(err) {
+			log.Fatal("File does not exist.")
 		}
 		return nil
 	}
 
 	promptApiKey := promptui.Prompt{
-		Label:    "Please provide a path towards your Text-to-Speech API key.",
+		Label:    "Please provide a path towards your Text-to-Speech API key",
 		Validate: validatePath,
 	}
 
 	promptEnvFile := promptui.Prompt{
-		Label:    "Please provide a path towards your passwords environment file.",
+		Label:    "Please provide a path towards your passwords environment file",
 		Validate: validatePath,
 	}
 
