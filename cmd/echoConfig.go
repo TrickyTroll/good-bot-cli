@@ -51,9 +51,13 @@ func echo() {
 	if viper.GetString("ttsCredentials") != "" {
 		ttsCredentials := viper.GetString("ttsCredentials")
 		fmt.Printf("Will be using TTS credentials from %s\n", ttsCredentials)
+	} else {
+		fmt.Println("There is no 'ttsCredentials' variable in your configuration file.")
 	}
 	if viper.GetString("passwordsEnv") != "" {
 		passwordsEnv := viper.GetString("passwordsEnv")
 		fmt.Printf("Will be using passwords from env file %s\n", passwordsEnv)
+	} else {
+		fmt.Println("There is no 'passwordsEnv' variable in your configuration file.")
 	}
 }
