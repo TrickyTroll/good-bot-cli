@@ -17,22 +17,16 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
-type config struct {
-	ttsCredentials string `yaml:"ttsCredentials"`
-	passwordsEnv   string `yaml:"passwordsEnv"`
-}
-
-var (
-	conf    *config
-	cfgFile string
-)
+var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -83,17 +77,44 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	err := viper.ReadInConfig()
-
-	if err != nil {
-		fmt.Printf("%v", err)
-	}
-
-	conf := &config{}
-	err = viper.Unmarshal(conf)
-	if err != nil {
-		fmt.Printf("Unable to decode into config struct, %v", err)
+	if err := viper.ReadInConfig(); err == nil {
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	} else {
-		fmt.Printf("Using config file %s\n", viper.ConfigFileUsed())
+		if askSetConfig() {
+			setConfig()
+		} else {
+			fmt.Println("Ok. Won't be setting a configuration file for now.")
+		}
 	}
+}
+
+func askSetConfig() bool {
+	fmt.Println("No configuration file was found!")
+	fmt.Println("Would you like to create one now (yes/no)? ")
+	prompt := promptui.Select{
+		Label: "Select[Yes/No]",
+		Items: []string{"Yes", "No"},
+	}
+	_, result, err := prompt.Run()
+	if err != nil {
+		log.Fatalf("Prompt failed %v\n", err)
+	}
+	return result == "Yes"
+}
+
+func setConfig() {
+	/*
+		There are 2 things that a user needs to set up in
+		order to user good-bot-cli.
+
+		1. A path towards their TTS api key.
+		2. A path towards their  password env file.
+
+		Since those are paths, they are verified with the
+		validate function below to make sure that
+
+		* They exist
+		* They are accessible from the user that is running
+		  this program.
+	*/
 }
