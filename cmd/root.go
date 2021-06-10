@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -120,9 +121,9 @@ func setConfig() {
 		  this program.
 	*/
 	validatePath := func(path string) error {
-		_, err := os.Stat("temp.txt")
+		_, err := os.Stat(path)
 		if os.IsNotExist(err) {
-			log.Fatal("File does not exist.")
+			return errors.New("file does not exist")
 		}
 		return nil
 	}
@@ -154,9 +155,26 @@ func setConfig() {
 	absApiKeyPath, _ := filepath.Abs(apiKeyPath)
 	absEnvFilePath, _ := filepath.Abs(envFilePath)
 
+	home, err := homedir.Dir()
+	cobra.CheckErr(err)
+
+	viper.AddConfigPath(home)
+	viper.SetConfigName(".good-bot-cli")
+	viper.SetConfigType("yaml")
 	viper.Set("ttsCredentials", absApiKeyPath)
 	viper.Set("passwordsEnv", absEnvFilePath)
-	viper.WriteConfig()
 
-	fmt.Println("Configuration file has been written.")
+	file, err := os.Create(home + "/.good-bot-cli.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	err = viper.WriteConfig()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Configuration file has been written as %s.\n", viper.ConfigFileUsed())
 }
