@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -120,11 +121,10 @@ func setConfig() {
 		  this program.
 	*/
 	validatePath := func(path string) error {
-		_, err := os.Stat(path)
+		_, err := filepath.Abs(path)
 		if err == nil {
 			return nil
-		}
-		if os.IsNotExist(err) {
+		} else if os.IsNotExist(err) {
 			return errors.New("path does not exist")
 		}
 		return nil
