@@ -154,8 +154,11 @@ func setConfig() {
 		return
 	}
 
-	viper.Set("ttsCredentials", apiKeyPath)
-	viper.Set("passwordsEnv", envFilePath)
+	absApiKeyPath, _ := filepath.Abs(apiKeyPath)
+	absEnvFilePath, _ := filepath.Abs(envFilePath)
+
+	viper.Set("ttsCredentials", absApiKeyPath)
+	viper.Set("passwordsEnv", absEnvFilePath)
 	viper.WriteConfig()
 
 	fmt.Println("Configuration file has been written.")
