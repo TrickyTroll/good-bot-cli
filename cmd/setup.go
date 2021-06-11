@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -42,6 +43,18 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("setup called")
+		runSetupCommand(args[0], "/project")
+	},
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("requires at least one argument")
+		} else if len(args) > 1 {
+			return errors.New("requires at most one argument")
+		} else if !validatePath(args[0]) {
+			return errors.New("not a valid path")
+		} else {
+			return nil
+		}
 	},
 }
 
@@ -57,6 +70,17 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// setupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func validatePath(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
 }
 
 func runSetupCommand(filePath string, hostPath string) {
@@ -87,7 +111,8 @@ func runSetupCommand(filePath string, hostPath string) {
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{
 			{
-				Type:   mount.TypeBind,
+				Type: mount.TypeBind,
+				// TODO: This needs to be converted to a dir
 				Source: hostPath,
 				Target: "/project",
 			},
