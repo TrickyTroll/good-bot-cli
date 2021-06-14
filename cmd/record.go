@@ -151,7 +151,7 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string) {
 		Mounts: []mount.Mount{
 			{
 				Type:   mount.TypeBind,
-				Source: hostPath,
+				Source: getDir(hostPath),
 				Target: "/project",
 			},
 		},
