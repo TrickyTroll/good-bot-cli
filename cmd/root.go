@@ -37,7 +37,8 @@ var rootCmd = &cobra.Command{
 	Short: "Good Bot's command line interface.",
 	Long: `good-bot-cli makes it easier to use good-bot in a container.
 
-It offers the same commands as the Docker application but a more intuitive CLI.`,
+It offers the same commands as the Docker application but with a more intuitive
+CLI.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
