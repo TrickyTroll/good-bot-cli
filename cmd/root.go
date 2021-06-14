@@ -63,6 +63,17 @@ func init() {
 	// when this action is called directly.
 }
 
+func validatePath(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {

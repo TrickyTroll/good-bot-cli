@@ -73,17 +73,6 @@ func init() {
 	// setupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func validatePath(path string) bool {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true
-	}
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
 func getDir(path string) string {
 	fullPath, err := filepath.Abs(path)
 	if err != nil {
