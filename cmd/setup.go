@@ -20,7 +20,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -42,16 +44,17 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("setup called")
 		runSetupCommand(args[0], "/project")
 	},
+	// Makes sure that there is one argument and it is an
+	// existing file.
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return errors.New("requires at least one argument")
 		} else if len(args) > 1 {
 			return errors.New("requires at most one argument")
 		} else if !validatePath(args[0]) {
-			return errors.New("not a valid path")
+			return errors.New("file does not exist")
 		} else {
 			return nil
 		}
@@ -83,7 +86,19 @@ func validatePath(path string) bool {
 	return true
 }
 
-func runSetupCommand(filePath string, hostPath string) {
+func getDir(path string) string {
+	fullPath, err := filepath.Abs(path)
+	if err != nil {
+		// This should never happen since the path is checked
+		// using validatePath. Panic if it happens.
+		panic(err)
+	}
+	fileDir := filepath.Dir(fullPath)
+
+	return fileDir
+}
+
+func runSetupCommand(filePath string, containerPath string) {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -96,6 +111,16 @@ func runSetupCommand(filePath string, hostPath string) {
 	}
 	io.Copy(os.Stdout, reader)
 
+	// Script and infos are written in containerPath. The directory
+	// where the script resides on the host will be mounted to containerPath.
+	stats, err := os.Stat(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	scriptName := stats.Name()
+
+	containerScriptPath := containerPath + "/" + scriptName
+
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 
 		AttachStdin:  false,
@@ -105,27 +130,27 @@ func runSetupCommand(filePath string, hostPath string) {
 		Tty:          true,
 		OpenStdin:    true,
 		StdinOnce:    false,
-		Cmd:          []string{"setup", filePath},
+		Cmd:          []string{"setup", containerScriptPath},
 		Image:        "trickytroll/good-bot:latest",
 		Volumes:      map[string]struct{}{},
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{
 			{
-				Type: mount.TypeBind,
-				// TODO: This needs to be converted to a dir
-				Source: hostPath,
-				Target: "/project",
+				Type:   mount.TypeBind,
+				Source: getDir(filePath),
+				Target: containerPath,
 			},
 		},
 	}, nil, nil, "")
+
 	if err != nil {
 		panic(err)
 	}
-
+	fmt.Println("Created container")
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		panic(err)
 	}
-
+	fmt.Println("Started container")
 	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
 	select {
 	case err := <-errCh:
