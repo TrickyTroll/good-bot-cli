@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
@@ -29,7 +30,6 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/docker/go-connections/nat"
 	"github.com/spf13/cobra"
 )
 
@@ -46,15 +46,13 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		runSetupCommand(args[0], "/project")
 	},
-	// Makes sure that there is one argument and it is an
-	// existing file.
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return errors.New("requires at least one argument")
 		} else if len(args) > 1 {
 			return errors.New("requires at most one argument")
 		} else if !validatePath(args[0]) {
-			return errors.New("file does not exist")
+			return errors.New("not a valid path")
 		} else {
 			return nil
 		}
@@ -99,17 +97,22 @@ func getDir(path string) string {
 }
 
 func runSetupCommand(filePath string, containerPath string) {
+
+	// Used later for i/o between container and shell
+	inout := make(chan []byte)
+
+	// Normal context with no timeout.
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
+	if err != nil { // cli fails nothing else will work. Should panic.
 		panic(err)
 	}
 
 	reader, err := cli.ImagePull(ctx, "trickytroll/good-bot:latest", types.ImagePullOptions{})
-	if err != nil {
+	if err != nil { // If no reader the rest of the program won't work.
 		panic(err)
 	}
-	io.Copy(os.Stdout, reader)
+	io.Copy(os.Stdout, reader) // Print container info to stdout.
 
 	// Script and infos are written in containerPath. The directory
 	// where the script resides on the host will be mounted to containerPath.
@@ -123,18 +126,15 @@ func runSetupCommand(filePath string, containerPath string) {
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 
-		AttachStdin:  false,
-		AttachStdout: false,
-		AttachStderr: false,
-		ExposedPorts: map[nat.Port]struct{}{},
+		AttachStdin:  true,
+		AttachStdout: true,
+		AttachStderr: true,
 		Tty:          true,
 		OpenStdin:    true,
-		StdinOnce:    false,
 		Cmd:          []string{"setup", containerScriptPath},
 		Image:        "trickytroll/good-bot:latest",
-		Volumes:      map[string]struct{}{},
 	}, &container.HostConfig{
-		Mounts: []mount.Mount{
+		Mounts: []mount.Mount{ // Mounting the location where the script is written.
 			{
 				Type:   mount.TypeBind,
 				Source: getDir(filePath),
@@ -146,18 +146,56 @@ func runSetupCommand(filePath string, containerPath string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Created container")
+
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		panic(err)
 	}
-	fmt.Println("Started container")
-	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
+
+	// Need to attach since the user will be interacting with the container
+	waiter, err := cli.ContainerAttach(ctx, resp.ID, types.ContainerAttachOptions{
+		Stderr: true,
+		Stdout: true,
+		Stdin:  true,
+		Stream: true,
+	})
+
+	// Starting a goroutine for copying. Copies container output to stdout.
+	go io.Copy(os.Stdout, waiter.Reader)
+	go io.Copy(os.Stderr, waiter.Reader)
+
+	if err != nil {
+		panic(err)
+	}
+
+	go func() { // In a goroutine
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() { // Write terminal input to inout channel
+			inout <- []byte(scanner.Text())
+		}
+	}()
+
+	go func(w io.WriteCloser) { // In another goroutine
+		for {
+			data, ok := <-inout // Get terminal input from channel
+			if !ok {
+				fmt.Println("!ok")
+				w.Close()
+				return
+			}
+
+			w.Write(append(data, '\n')) // Write input to `w`. `w` is a Conn interface.
+			// See https://pkg.go.dev/net#Conn
+		}
+	}(waiter.Conn)
+
+	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNextExit)
 	select {
 	case err := <-errCh:
 		if err != nil {
 			panic(err)
 		}
-	case <-statusCh:
+	case status := <-statusCh:
+		fmt.Printf("status.StatusCode: %#+v\n", status.StatusCode)
 	}
 
 	out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
