@@ -122,6 +122,9 @@ func copyCredentials() *credentials {
 }
 
 func runRecordCommand(hostPath string, ttsFile string, envVars []string) {
+	// Used later for i/o between container and shell
+	inout := make(chan []byte)
+
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -134,8 +137,25 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string) {
 	}
 	io.Copy(os.Stdout, reader)
 
-	credentialsEnv := fmt.Sprintf("GOOGLE_APPLICATION_CREDENTIALS=%s", ttsFile)
+	ttyFileStats, err := os.Stat(ttsFile)
+	if err != nil {
+		panic(err)
+	}
+	ttsFileName := ttyFileStats.Name()
+
+	containerTtsPath := "/credentials/" + ttsFileName
+
+	credentialsEnv := fmt.Sprintf("GOOGLE_APPLICATION_CREDENTIALS=%s", containerTtsPath)
 	envVars = append(envVars, credentialsEnv)
+
+	stats, err := os.Stat(hostPath)
+	if err != nil {
+		panic(err)
+	}
+
+	projectName := stats.Name()
+
+	containerProjectPath := "/project" + "/" + projectName
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		AttachStdin:  true,
@@ -144,7 +164,7 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string) {
 		Tty:          true,
 		OpenStdin:    true,
 		Env:          envVars,
-		Cmd:          []string{"record", hostPath},
+		Cmd:          []string{"record", containerProjectPath},
 		Image:        "trickytroll/good-bot:latest",
 		Volumes:      map[string]struct{}{},
 	}, &container.HostConfig{
@@ -153,6 +173,11 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string) {
 				Type:   mount.TypeBind,
 				Source: getDir(hostPath),
 				Target: "/project",
+			},
+			{
+				Type:   mount.TypeBind,
+				Source: getDir(ttsFile),
+				Target: "/credentials",
 			},
 		},
 	}, nil, nil, "")
@@ -163,6 +188,42 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string) {
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		panic(err)
 	}
+	// Need to attach since the user will be interacting with the container
+	waiter, err := cli.ContainerAttach(ctx, resp.ID, types.ContainerAttachOptions{
+		Stderr: true,
+		Stdout: true,
+		Stdin:  true,
+		Stream: true,
+	})
+
+	// Starting a goroutine for copying. Copies container output to stdout.
+	go io.Copy(os.Stdout, waiter.Reader)
+	go io.Copy(os.Stderr, waiter.Reader)
+
+	if err != nil {
+		panic(err)
+	}
+
+	go func() { // In a goroutine
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() { // Write terminal input to inout channel
+			inout <- []byte(scanner.Text())
+		}
+	}()
+
+	go func(w io.WriteCloser) { // In another goroutine
+		for {
+			data, ok := <-inout // Get terminal input from channel
+			if !ok {
+				fmt.Println("!ok")
+				w.Close()
+				return
+			}
+
+			w.Write(append(data, '\n')) // Write input to `w`. `w` is a Conn interface.
+			// See https://pkg.go.dev/net#Conn
+		}
+	}(waiter.Conn)
 
 	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
 	select {
