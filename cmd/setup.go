@@ -23,7 +23,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -71,18 +70,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// setupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func getDir(path string) string {
-	fullPath, err := filepath.Abs(path)
-	if err != nil {
-		// This should never happen since the path is checked
-		// using validatePath. Panic if it happens.
-		panic(err)
-	}
-	fileDir := filepath.Dir(fullPath)
-
-	return fileDir
 }
 
 func runSetupCommand(filePath string, containerPath string) {

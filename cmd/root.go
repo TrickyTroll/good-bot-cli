@@ -74,6 +74,18 @@ func validatePath(path string) bool {
 	return true
 }
 
+func getDir(path string) string {
+	fullPath, err := filepath.Abs(path)
+	if err != nil {
+		// This should never happen since the path is checked
+		// using validatePath. Panic if it happens.
+		panic(err)
+	}
+	fileDir := filepath.Dir(fullPath)
+
+	return fileDir
+}
+
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
