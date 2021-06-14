@@ -18,11 +18,11 @@ package cmd
 import (
 	"bufio"
 	"context"
-	"strings"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -47,8 +47,9 @@ If the argument is already a directory created by the
 setup command, this command will only use the record
 command to create the recordings.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		credentials := copyCredentials()
 		if isDirectory(args[0]) {
-			runRecordCommand(args[0], viper.GetString("ttsCredentials"), viper.GetString("passwordsEnv"))
+			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords)
 		} else {
 			runSetupCommand(args[0], "/project")
 			// TODO: ask which path to use to record the project
@@ -65,6 +66,11 @@ command to create the recordings.`,
 			return nil
 		}
 	},
+}
+
+type credentials struct {
+	passwords []string
+	ttsFile   string
 }
 
 func init() {
@@ -93,7 +99,7 @@ func isDirectory(path string) bool {
 func parsePasswords(passwordsPath string) ([]string, error) {
 	file, err := os.Open(passwordsPath)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer file.Close()
 
@@ -105,13 +111,17 @@ func parsePasswords(passwordsPath string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
-func copyCredentials() bool {
+func copyCredentials() *credentials {
+
 	ttsCredentials := viper.GetString("ttsCredentials")
 	passwordsEnv := viper.GetString("passwordsEnv")
-	if len(passwordsEnv) >
+
+	allPasswords, _ := parsePasswords(passwordsEnv)
+
+	return &credentials{allPasswords, ttsCredentials}
 }
 
-func runRecordCommand(hostPath string, envFile string, passwordsFile string) {
+func runRecordCommand(hostPath string, ttsFile string, envVars []string) {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -124,7 +134,8 @@ func runRecordCommand(hostPath string, envFile string, passwordsFile string) {
 	}
 	io.Copy(os.Stdout, reader)
 
-	credentialsEnv := fmt.Sprintf("GOOGLE_APPLICATION_CREDENTIALS=%s", envFile)
+	credentialsEnv := fmt.Sprintf("GOOGLE_APPLICATION_CREDENTIALS=%s", ttsFile)
+	envVars = append(envVars, credentialsEnv)
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		AttachStdin:  true,
@@ -132,7 +143,7 @@ func runRecordCommand(hostPath string, envFile string, passwordsFile string) {
 		AttachStderr: true,
 		Tty:          true,
 		OpenStdin:    true,
-		Env:          []string{credentialsEnv},
+		Env:          envVars,
 		Cmd:          []string{"record", hostPath},
 		Image:        "trickytroll/good-bot:latest",
 		Volumes:      map[string]struct{}{},
