@@ -16,10 +16,21 @@ limitations under the License.
 package cmd
 
 import (
+	"bufio"
+	"context"
+	"strings"
 	"errors"
 	"fmt"
+	"io"
+	"os"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // recordCmd represents the record command
@@ -36,7 +47,12 @@ If the argument is already a directory created by the
 setup command, this command will only use the record
 command to create the recordings.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("record called")
+		if isDirectory(args[0]) {
+			runRecordCommand(args[0], viper.GetString("ttsCredentials"), viper.GetString("passwordsEnv"))
+		} else {
+			runSetupCommand(args[0], "/project")
+			// TODO: ask which path to use to record the project
+		}
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
@@ -63,4 +79,93 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// recordCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+// Path should be valid since it's been checked by validatePath()
+func isDirectory(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		panic(err)
+	}
+	return info.IsDir()
+}
+
+func parsePasswords(passwordsPath string) ([]string, error) {
+	file, err := os.Open(passwordsPath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, strings.Trim(scanner.Text(), "\n"))
+	}
+	return lines, scanner.Err()
+}
+
+func copyCredentials() bool {
+	ttsCredentials := viper.GetString("ttsCredentials")
+	passwordsEnv := viper.GetString("passwordsEnv")
+	if len(passwordsEnv) >
+}
+
+func runRecordCommand(hostPath string, envFile string, passwordsFile string) {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		panic(err)
+	}
+
+	reader, err := cli.ImagePull(ctx, "trickytroll/good-bot:latest", types.ImagePullOptions{})
+	if err != nil {
+		panic(err)
+	}
+	io.Copy(os.Stdout, reader)
+
+	credentialsEnv := fmt.Sprintf("GOOGLE_APPLICATION_CREDENTIALS=%s", envFile)
+
+	resp, err := cli.ContainerCreate(ctx, &container.Config{
+		AttachStdin:  true,
+		AttachStdout: true,
+		AttachStderr: true,
+		Tty:          true,
+		OpenStdin:    true,
+		Env:          []string{credentialsEnv},
+		Cmd:          []string{"record", hostPath},
+		Image:        "trickytroll/good-bot:latest",
+		Volumes:      map[string]struct{}{},
+	}, &container.HostConfig{
+		Mounts: []mount.Mount{
+			{
+				Type:   mount.TypeBind,
+				Source: hostPath,
+				Target: "/project",
+			},
+		},
+	}, nil, nil, "")
+	if err != nil {
+		panic(err)
+	}
+
+	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		panic(err)
+	}
+
+	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
+	select {
+	case err := <-errCh:
+		if err != nil {
+			panic(err)
+		}
+	case <-statusCh:
+	}
+
+	out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
+	if err != nil {
+		panic(err)
+	}
+
+	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 }
