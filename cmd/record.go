@@ -96,7 +96,8 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// recordCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	rootCmd.Flags().BoolVar(&noRender, "no-render", false, "If not rendering, Good-Bot only outputs asciicasts and audio recordings. No gifs or mp4 files are produced.")
+	rootCmd.Flags().BoolVar(&noRender, "no-render", false, `If not rendering, Good-Bot only outputs asciicasts and 
+audio recordings. No gifs or mp4 files are produced.`)
 }
 
 func runRecordCommand(hostPath string, ttsFile string, envVars []string) {
