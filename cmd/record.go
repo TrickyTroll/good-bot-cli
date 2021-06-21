@@ -33,6 +33,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+var render bool
+
 // recordCmd represents the record command
 var recordCmd = &cobra.Command{
 	Use:   "record",
@@ -50,9 +52,15 @@ command to create the recordings.`,
 		credentials := copyCredentials()
 		if isDirectory(args[0]) {
 			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords)
+			if !noRender {
+				renderProject("toto")
+			}
 		} else {
 			runSetupCommand(args[0], "/project")
 			// TODO: ask which path to use to record the project
+			if !noRender {
+				renderProject("Toto")
+			}
 		}
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -73,7 +81,10 @@ type credentials struct {
 	ttsFile   string
 }
 
+var noRender bool
+
 func init() {
+
 	rootCmd.AddCommand(recordCmd)
 
 	// Here you will define your flags and configuration settings.
@@ -85,40 +96,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// recordCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-// Path should be valid since it's been checked by validatePath()
-func isDirectory(path string) bool {
-	info, err := os.Stat(path)
-	if err != nil {
-		panic(err)
-	}
-	return info.IsDir()
-}
-
-func parsePasswords(passwordsPath string) ([]string, error) {
-	file, err := os.Open(passwordsPath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, strings.Trim(scanner.Text(), "\n"))
-	}
-	return lines, scanner.Err()
-}
-
-func copyCredentials() *credentials {
-
-	ttsCredentials := viper.GetString("ttsCredentials")
-	passwordsEnv := viper.GetString("passwordsEnv")
-
-	allPasswords, _ := parsePasswords(passwordsEnv)
-
-	return &credentials{allPasswords, ttsCredentials}
+	rootCmd.Flags().BoolVar(&noRender, "no-render", false, "If not rendering, Good-Bot only outputs asciicasts and audio recordings. No gifs or mp4 files are produced.")
 }
 
 func runRecordCommand(hostPath string, ttsFile string, envVars []string) {
@@ -240,4 +218,38 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string) {
 	}
 
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+}
+
+// Path should be valid since it's been checked by validatePath()
+func isDirectory(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		panic(err)
+	}
+	return info.IsDir()
+}
+
+func parsePasswords(passwordsPath string) ([]string, error) {
+	file, err := os.Open(passwordsPath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, strings.Trim(scanner.Text(), "\n"))
+	}
+	return lines, scanner.Err()
+}
+
+func copyCredentials() *credentials {
+
+	ttsCredentials := viper.GetString("ttsCredentials")
+	passwordsEnv := viper.GetString("passwordsEnv")
+
+	allPasswords, _ := parsePasswords(passwordsEnv)
+
+	return &credentials{allPasswords, ttsCredentials}
 }
