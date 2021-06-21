@@ -26,7 +26,8 @@ import (
 const recordingsPath string = "/asciicasts"
 
 func getRecsPaths(projectPath string) []string {
-	allPaths := make([]string)
+	var allPaths []string
+	// Each dir is a `scene`.
 	dirs, err := ioutil.ReadDir(projectPath)
 	if err != nil {
 		// The function should panic since providing a path
@@ -34,18 +35,15 @@ func getRecsPaths(projectPath string) []string {
 		log.Panic(err)
 	}
 	for _, dir := range dirs {
-		stat, err := os.Stat(dir.Name())
-		if err != nil {
-			log.Panic(err)
-		}
-		if stat.IsDir() {
-
-		}
+		scenePath := projectPath + "/" + dir.Name()
+		sceneRecordings := getSceneCasts(scenePath)
+		allPaths = append(allPaths, sceneRecordings...)
 	}
+	return allPaths
 }
 
 func getSceneCasts(scenePath string) []string {
-	var allPaths []string
+	var allScenePaths []string
 	castsPath := scenePath + recordingsPath
 	recordings, err := ioutil.ReadDir(castsPath)
 	if err != nil {
@@ -56,10 +54,10 @@ func getSceneCasts(scenePath string) []string {
 	for _, file := range recordings {
 		filePath := castsPath + "/" + file.Name()
 		if isCast(filePath) {
-			allPaths = append(allPaths, filePath)
+			allScenePaths = append(allScenePaths, filePath)
 		}
 	}
-	return allPaths
+	return allScenePaths
 }
 
 func isCast(file string) bool {
