@@ -16,11 +16,14 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 )
+
+const recordingsPath string = "/asciicasts"
 
 func getRecsPaths(projectPath string) []string {
 	allPaths := make([]string)
@@ -31,12 +34,32 @@ func getRecsPaths(projectPath string) []string {
 		log.Panic(err)
 	}
 	for _, dir := range dirs {
-		stat, err := os.Stat(dir)
-			if err
-		if stat.IsDir() && isCast(file) {
+		stat, err := os.Stat(dir.Name())
+		if err != nil {
+			log.Panic(err)
+		}
+		if stat.IsDir() {
 
 		}
 	}
+}
+
+func getSceneCasts(scenePath string) []string {
+	var allPaths []string
+	castsPath := scenePath + recordingsPath
+	recordings, err := ioutil.ReadDir(castsPath)
+	if err != nil {
+		// Probabably means that there are no recordings. No need to Panic.
+		log.Println(fmt.Sprintf("Found no recordings in scene %s", scenePath))
+		return nil
+	}
+	for _, file := range recordings {
+		filePath := castsPath + "/" + file.Name()
+		if isCast(filePath) {
+			allPaths = append(allPaths, filePath)
+		}
+	}
+	return allPaths
 }
 
 func isCast(file string) bool {
