@@ -19,3 +19,7 @@
 
 # Container tests. Those tests are always called `toto`.
 toto/
+
+# Env vars
+*.env
+env/
