@@ -38,9 +38,6 @@ const renderPath string = "/gifs"
 
 func renderProject(projectPath string) {
 	toRecord := getRecsPaths(projectPath)
-	fmt.Println("Rendering...")
-	fmt.Println(projectPath)
-	fmt.Println(toRecord)
 	for _, item := range toRecord {
 		renderRecording(item, projectPath)
 	}
@@ -61,8 +58,8 @@ func renderRecording(asciicastPath, projectPath string) string {
 	noExt := strings.TrimSuffix(asciicastPath, filepath.Ext(asciicastPath))
 
 	// The project path is mounted as `/data` in the container.
-	recContainerPath := "/data/" + projectName + recordingsPath + stats.Name()
-	gifContainerPath := "/data/" + projectName + renderPath + noExt + ".gif"
+	recContainerPath := "/data" + projectName + recordingsPath + stats.Name()
+	gifContainerPath := "/data" + projectName + renderPath + noExt + ".gif"
 
 	// Used later for i/o between container and shell
 	inout := make(chan []byte)
@@ -190,7 +187,6 @@ func getSceneCasts(scenePath string) []string {
 		filePath := castsPath + "/" + file.Name()
 		fmt.Println(filepath.Ext(filePath))
 		if filepath.Ext(filePath) == ".cast" {
-			fmt.Println("Found an asciicast!")
 			allScenePaths = append(allScenePaths, filePath)
 		}
 	}
