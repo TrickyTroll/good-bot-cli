@@ -18,6 +18,7 @@ package cmd
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -31,7 +32,49 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/spf13/cobra"
 )
+
+// renderCmd represents the render command
+var renderCmd = &cobra.Command{
+	Use:   "render",
+	Short: "Renders a previously recorded project.",
+	Long: `Render can be used to create a video from a recording
+that used the --no-render flag.
+
+The --no-render flag can be used to speed up the recording
+process. Once you are happy with the result, the video can be
+rendered afterwards using this command.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// First argument should be the project path.
+		renderProject(args[0])
+	},
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("requires at least one argument")
+		} else if len(args) > 1 {
+			return errors.New("requires at most one argument")
+		} else if !validatePath(args[0]) { // d
+			return errors.New("not a valid path")
+		} else {
+			return nil
+		}
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(renderCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// renderCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// renderCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
 
 const recordingsPath string = "/asciicasts/"
 const renderPath string = "/gifs/"
