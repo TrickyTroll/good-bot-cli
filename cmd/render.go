@@ -58,6 +58,7 @@ func renderRecording(asciicastPath, projectPath string) string {
 	noExt := strings.TrimSuffix(asciicastPath, filepath.Ext(asciicastPath))
 
 	// The project path is mounted as `/data` in the container.
+	// `projectName` is a string with no `/`.
 	recContainerPath := "/data" + projectName + recordingsPath + stats.Name()
 	gifContainerPath := "/data" + projectName + renderPath + noExt + ".gif"
 
