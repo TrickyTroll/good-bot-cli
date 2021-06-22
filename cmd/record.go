@@ -51,15 +51,19 @@ command to create the recordings.`,
 		if isDirectory(args[0]) {
 			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords)
 			if !noRender {
-				renderProject("toto")
+				renderProject(args[0])
 			}
 		} else {
-			runSetupCommand(args[0], "/project")
-			recDir := askRecDir()
-			runRecordCommand(recDir, credentials.ttsFile, credentials.passwords)
-			if !noRender {
-				renderProject("Toto")
-			}
+			// TODO: Fix this.
+			// runSetupCommand(args[0], "/project")
+			// recDir := askRecDir()
+			// runRecordCommand(recDir, credentials.ttsFile, credentials.passwords)
+			// if !noRender {
+			// 	renderProject("Toto")
+			// }
+			fmt.Printf("Cannot create a video from %s.\n", args[0])
+			fmt.Println("Please make sure that you used the setup command first.")
+			os.Exit(1)
 		}
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -95,7 +99,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// recordCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	rootCmd.Flags().BoolVar(&noRender, "no-render", false, `If not rendering, Good-Bot only outputs asciicasts and 
+	recordCmd.Flags().BoolVar(&noRender, "no-render", false, `If not rendering, Good-Bot only outputs asciicasts and 
 audio recordings. No gifs or mp4 files are produced.`)
 }
 
