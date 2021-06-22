@@ -115,6 +115,30 @@ func initConfig() {
 	}
 }
 
+func askRecDir() string {
+	validatePath := func(path string) error {
+		_, err := os.Stat(path)
+		if os.IsNotExist(err) {
+			return errors.New("file does not exist")
+		}
+		return nil
+	}
+
+	promptRecDir := promptui.Prompt{
+		Label:    "What is the path towards the project you want to record?\n",
+		Validate: validatePath,
+	}
+
+	recDir, err := promptRecDir.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return ""
+	}
+
+	return recDir
+}
+
 func askSetConfig() bool {
 	fmt.Println("No configuration file was found!")
 	fmt.Println("Would you like to create one now (yes/no)? ")
