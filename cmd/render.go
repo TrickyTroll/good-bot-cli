@@ -33,8 +33,8 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 )
 
-const recordingsPath string = "/asciicasts"
-const renderPath string = "/gifs"
+const recordingsPath string = "/asciicasts/"
+const renderPath string = "/gifs/"
 
 func renderProject(projectPath string) {
 	toRecord := getRecsPaths(projectPath)
@@ -59,8 +59,8 @@ func renderRecording(asciicastPath, projectPath string) string {
 
 	// The project path is mounted as `/data` in the container.
 	// `projectName` is a string with no `/`.
-	recContainerPath := "/data" + projectName + recordingsPath + stats.Name()
-	gifContainerPath := "/data" + projectName + renderPath + noExt + ".gif"
+	recContainerPath := "/data/" + projectName + recordingsPath + stats.Name()
+	gifContainerPath := "/data/" + projectName + renderPath + noExt + ".gif"
 
 	// Used later for i/o between container and shell
 	inout := make(chan []byte)
