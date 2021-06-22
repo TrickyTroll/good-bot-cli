@@ -189,7 +189,7 @@ func getSceneCasts(scenePath string) []string {
 		fmt.Println(file)
 		filePath := castsPath + "/" + file.Name()
 		fmt.Println(filepath.Ext(filePath))
-		if filepath.Ext(filePath) == "cast" {
+		if filepath.Ext(filePath) == ".cast" {
 			fmt.Println("Found an asciicast!")
 			allScenePaths = append(allScenePaths, filePath)
 		}
