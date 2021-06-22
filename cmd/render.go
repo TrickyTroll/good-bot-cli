@@ -38,6 +38,9 @@ const renderPath string = "/gifs"
 
 func renderProject(projectPath string) {
 	toRecord := getRecsPaths(projectPath)
+	fmt.Println("Rendering...")
+	fmt.Println(projectPath)
+	fmt.Println(toRecord)
 	for _, item := range toRecord {
 		renderRecording(item, projectPath)
 	}
@@ -166,6 +169,7 @@ func getRecsPaths(projectPath string) []string {
 	}
 	for _, dir := range dirs {
 		scenePath := projectPath + "/" + dir.Name()
+		fmt.Println(dir)
 		sceneRecordings := getSceneCasts(scenePath)
 		allPaths = append(allPaths, sceneRecordings...)
 	}
@@ -182,21 +186,13 @@ func getSceneCasts(scenePath string) []string {
 		return nil
 	}
 	for _, file := range recordings {
+		fmt.Println(file)
 		filePath := castsPath + "/" + file.Name()
-		if isCast(filePath) {
+		fmt.Println(filepath.Ext(filePath))
+		if filepath.Ext(filePath) == "cast" {
+			fmt.Println("Found an asciicast!")
 			allScenePaths = append(allScenePaths, filePath)
 		}
 	}
 	return allScenePaths
-}
-
-func isCast(file string) bool {
-	stat, err := os.Stat(file)
-	if err != nil {
-		log.Panic(err)
-	}
-	if filepath.Ext(file) == "cast" && !(stat.IsDir()) {
-		return true
-	}
-	return false
 }
