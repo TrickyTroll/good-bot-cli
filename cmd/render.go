@@ -45,22 +45,11 @@ func renderProject(projectPath string) {
 
 func renderRecording(asciicastPath, projectPath string) string {
 
-	stats, err := os.Stat(asciicastPath)
-
-	if err != nil {
-		// Providing a path to an asciicast that does not exists to
-		// this function should never happen.
-		log.Panic(err)
-	}
-
 	splitProjectName := strings.Split(projectPath, "/")
 	projectName := splitProjectName[len(splitProjectName)-1]
 	noExt := strings.TrimSuffix(asciicastPath, filepath.Ext(asciicastPath))
 
-	// The project path is mounted as `/data` in the container.
-	// `projectName` is a string with no `/`.
-	recContainerPath := "/data/" + projectName + recordingsPath + stats.Name()
-	gifContainerPath := "/data/" + projectName + renderPath + noExt + ".gif"
+	outputPath := projectPath + renderPath + noExt + ".gif"
 
 	// Used later for i/o between container and shell
 	inout := make(chan []byte)
@@ -79,14 +68,14 @@ func renderRecording(asciicastPath, projectPath string) string {
 	io.Copy(os.Stdout, reader) // Print container info to stdout.
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Cmd:   []string{recContainerPath, gifContainerPath},
+		Cmd:   []string{asciicastPath, outputPath},
 		Image: "asciinema/asciicast2gif",
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{ // Mounting the location where the script is written.
 			{
 				Type:   mount.TypeBind,
-				Source: getDir(projectPath), // `getDir()` defined in `root.go`.
-				Target: "/data",             // Specified in asciicast2gif's README.
+				Source: currentWorkingDir, // `getDir()` defined in `root.go`.
+				Target: "/data",           // Specified in asciicast2gif's README.
 			},
 		},
 	}, nil, nil, "")
@@ -167,7 +156,6 @@ func getRecsPaths(projectPath string) []string {
 	}
 	for _, dir := range dirs {
 		scenePath := projectPath + "/" + dir.Name()
-		fmt.Println(dir)
 		sceneRecordings := getSceneCasts(scenePath)
 		allPaths = append(allPaths, sceneRecordings...)
 	}
@@ -175,7 +163,7 @@ func getRecsPaths(projectPath string) []string {
 }
 
 func getSceneCasts(scenePath string) []string {
-	var allScenePaths []string
+	var sceneRecordings []string
 	castsPath := scenePath + recordingsPath
 	recordings, err := ioutil.ReadDir(castsPath)
 	if err != nil {
@@ -184,12 +172,10 @@ func getSceneCasts(scenePath string) []string {
 		return nil
 	}
 	for _, file := range recordings {
-		fmt.Println(file)
-		filePath := castsPath + "/" + file.Name()
-		fmt.Println(filepath.Ext(filePath))
+		filePath := scenePath + recordingsPath + file.Name()
 		if filepath.Ext(filePath) == ".cast" {
-			allScenePaths = append(allScenePaths, filePath)
+			sceneRecordings = append(sceneRecordings, filePath)
 		}
 	}
-	return allScenePaths
+	return sceneRecordings
 }
