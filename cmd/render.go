@@ -51,6 +51,11 @@ func renderRecording(asciicastPath, projectPath string) string {
 
 	outputPath := projectPath + renderPath + noExt + ".gif"
 
+	currentWorkingDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Used later for i/o between container and shell
 	inout := make(chan []byte)
 
