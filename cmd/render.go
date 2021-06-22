@@ -100,13 +100,19 @@ func renderProject(projectPath string) {
 	}
 }
 
-func renderRecording(asciicastPath string, projectPath string, cli *client.Client, ctx context.Context) string {
+func renderRecording(asciicastPath string, projectPath string, cli *client.Client, ctx context.Context) {
 
-	splitProjectName := strings.Split(projectPath, "/")
-	projectName := splitProjectName[len(splitProjectName)-1]
-	noExt := strings.TrimSuffix(asciicastPath, filepath.Ext(asciicastPath))
+	stat, err := os.Stat(asciicastPath)
 
-	outputPath := projectPath + renderPath + noExt + ".gif"
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fileName := strings.TrimSuffix(stat.Name(), filepath.Ext(stat.Name()))
+
+	scenePath := getScenePath(asciicastPath)
+
+	outputPath := scenePath + renderPath + fileName + ".gif"
 
 	currentWorkingDir, err := os.Getwd()
 	if err != nil {
@@ -190,8 +196,6 @@ func renderRecording(asciicastPath string, projectPath string, cli *client.Clien
 	}
 
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
-
-	return projectName + renderPath + "/" + noExt + ".gif"
 }
 
 func getRecsPaths(projectPath string) []string {
@@ -227,4 +231,11 @@ func getSceneCasts(scenePath string) []string {
 		}
 	}
 	return sceneRecordings
+}
+
+func getScenePath(recPath string) string {
+	typePath := filepath.Dir(recPath)
+	// The scene path should be the parent dir
+	// to the type of media.
+	return filepath.Dir(typePath)
 }
