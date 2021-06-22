@@ -35,7 +35,7 @@ import (
 
 // recordCmd represents the record command
 var recordCmd = &cobra.Command{
-	Use:   "record",
+	Use:   "record [path to project]",
 	Short: "Record a video using good-bot.",
 	Long: `This command uses good-bot's container image
 to record a project.

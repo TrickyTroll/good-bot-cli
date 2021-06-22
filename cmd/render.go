@@ -37,7 +37,7 @@ import (
 
 // renderCmd represents the render command
 var renderCmd = &cobra.Command{
-	Use:   "render",
+	Use:   "render [path to project]",
 	Short: "Renders a previously recorded project.",
 	Long: `Render can be used to create a video from a recording
 that used the --no-render flag.
@@ -54,7 +54,7 @@ rendered afterwards using this command.`,
 			return errors.New("requires at least one argument")
 		} else if len(args) > 1 {
 			return errors.New("requires at most one argument")
-		} else if !validatePath(args[0]) { // d
+		} else if !validatePath(args[0]) {
 			return errors.New("not a valid path")
 		} else {
 			return nil

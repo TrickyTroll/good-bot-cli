@@ -34,7 +34,7 @@ import (
 
 // setupCmd represents the setup command
 var setupCmd = &cobra.Command{
-	Use:   "setup",
+	Use:   "setup [path to script]",
 	Short: "Sets up your project directory from a configuration file.",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
