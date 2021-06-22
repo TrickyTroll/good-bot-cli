@@ -80,13 +80,27 @@ const recordingsPath string = "/asciicasts/"
 const renderPath string = "/gifs/"
 
 func renderProject(projectPath string) {
+	// Spawning it only once
+	// Normal context with no timeout.
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil { // cli fails nothing else will work. Should panic.
+		panic(err)
+	}
+
+	reader, err := cli.ImagePull(ctx, "asciinema/asciicast2gif", types.ImagePullOptions{})
+	if err != nil { // If no reader the rest of the program won't work.
+		panic(err)
+	}
+	io.Copy(os.Stdout, reader) // Print container info to stdout.
+
 	toRecord := getRecsPaths(projectPath)
 	for _, item := range toRecord {
-		renderRecording(item, projectPath)
+		renderRecording(item, projectPath, cli, ctx)
 	}
 }
 
-func renderRecording(asciicastPath, projectPath string) string {
+func renderRecording(asciicastPath string, projectPath string, cli *client.Client, ctx context.Context) string {
 
 	splitProjectName := strings.Split(projectPath, "/")
 	projectName := splitProjectName[len(splitProjectName)-1]
@@ -101,19 +115,6 @@ func renderRecording(asciicastPath, projectPath string) string {
 
 	// Used later for i/o between container and shell
 	inout := make(chan []byte)
-
-	// Normal context with no timeout.
-	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil { // cli fails nothing else will work. Should panic.
-		panic(err)
-	}
-
-	reader, err := cli.ImagePull(ctx, "asciinema/asciicast2gif", types.ImagePullOptions{})
-	if err != nil { // If no reader the rest of the program won't work.
-		panic(err)
-	}
-	io.Copy(os.Stdout, reader) // Print container info to stdout.
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Cmd:   []string{asciicastPath, outputPath},
