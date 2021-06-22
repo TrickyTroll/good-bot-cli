@@ -23,3 +23,6 @@ toto/
 # Env vars
 *.env
 env/
+
+# MacOS dirs
+.DS_Store
