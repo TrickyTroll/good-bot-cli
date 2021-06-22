@@ -33,8 +33,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var render bool
-
 // recordCmd represents the record command
 var recordCmd = &cobra.Command{
 	Use:   "record",
@@ -57,7 +55,8 @@ command to create the recordings.`,
 			}
 		} else {
 			runSetupCommand(args[0], "/project")
-			// TODO: ask which path to use to record the project
+			recDir := askRecDir()
+			runRecordCommand(recDir, credentials.ttsFile, credentials.passwords)
 			if !noRender {
 				renderProject("Toto")
 			}
