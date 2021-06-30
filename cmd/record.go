@@ -52,6 +52,7 @@ command to create the recordings.`,
 			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords)
 			if !noRender {
 				renderProject(args[0])
+				renderVideo(args[0])
 			}
 		} else {
 			// TODO: Fix this.
