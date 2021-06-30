@@ -48,6 +48,7 @@ rendered afterwards using this command.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// First argument should be the project path.
 		renderProject(args[0])
+		renderVideo(args[0])
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
@@ -196,6 +197,113 @@ func renderRecording(asciicastPath string, projectPath string, cli *client.Clien
 	}
 
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+}
+
+func renderVideo(projectPath string) string {
+	// Used later for i/o between container and shell
+	inout := make(chan []byte)
+
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		panic(err)
+	}
+
+	reader, err := cli.ImagePull(ctx, "trickytroll/good-bot:latest", types.ImagePullOptions{})
+	if err != nil {
+		panic(err)
+	}
+	io.Copy(os.Stdout, reader)
+
+	stats, err := os.Stat(projectPath)
+	if err != nil {
+		panic(err)
+	}
+
+	projectName := stats.Name()
+
+	containerProjectPath := "/project" + "/" + projectName
+	finalPath := projectPath + "/final"
+
+	resp, err := cli.ContainerCreate(ctx, &container.Config{
+		AttachStdin:  true,
+		AttachStdout: true,
+		AttachStderr: true,
+		Tty:          true,
+		OpenStdin:    true,
+		Cmd:          []string{"render-video", containerProjectPath},
+		Image:        "trickytroll/good-bot:latest",
+		Volumes:      map[string]struct{}{},
+	}, &container.HostConfig{
+		Mounts: []mount.Mount{
+			{
+				Type:   mount.TypeBind,
+				Source: getDir(projectPath),
+				Target: "/project",
+			},
+		},
+	}, nil, nil, "")
+	if err != nil {
+		panic(err)
+	}
+
+	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		panic(err)
+	}
+	// Need to attach since the user will be interacting with the container
+	waiter, err := cli.ContainerAttach(ctx, resp.ID, types.ContainerAttachOptions{
+		Stderr: true,
+		Stdout: true,
+		Stdin:  true,
+		Stream: true,
+	})
+
+	// Starting a goroutine for copying. Copies container output to stdout.
+	go io.Copy(os.Stdout, waiter.Reader)
+	go io.Copy(os.Stderr, waiter.Reader)
+
+	if err != nil {
+		panic(err)
+	}
+
+	go func() { // In a goroutine
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() { // Write terminal input to inout channel
+			inout <- []byte(scanner.Text())
+		}
+	}()
+
+	go func(w io.WriteCloser) { // In another goroutine
+		for {
+			data, ok := <-inout // Get terminal input from channel
+			if !ok {
+				fmt.Println("!ok")
+				w.Close()
+				return
+			}
+
+			w.Write(append(data, '\n')) // Write input to `w`. `w` is a Conn interface.
+			// See https://pkg.go.dev/net#Conn
+		}
+	}(waiter.Conn)
+
+	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
+	select {
+	case err := <-errCh:
+		if err != nil {
+			panic(err)
+		}
+	case <-statusCh:
+	}
+
+	out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
+	if err != nil {
+		panic(err)
+	}
+
+	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+
+	return finalPath
 }
 
 func getRecsPaths(projectPath string) []string {
