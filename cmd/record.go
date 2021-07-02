@@ -49,7 +49,7 @@ command to create the recordings.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		credentials := copyCredentials()
 		if isDirectory(args[0]) {
-			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords)
+			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords, &languageSettings{language, languageName})
 			if !noRender {
 				renderProject(args[0])
 				renderVideo(args[0])
@@ -86,9 +86,9 @@ type credentials struct {
 }
 
 var (
-	noRender bool
-	lang     string
-	langName string
+	noRender     bool
+	language     string
+	languageName string
 )
 
 type languageSettings struct {
@@ -111,8 +111,8 @@ func init() {
 	// recordCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	recordCmd.Flags().BoolVar(&noRender, "no-render", false, `If not rendering, Good-Bot only outputs asciicasts and 
 audio recordings. No gifs or mp4 files are produced.`)
-	recordCmd.Flags().StringVarP(&lang, "language", "l", "en-US", "Which language code to use for the narration.")
-	recordCmd.Flags().StringVarP(&langName, "language-name", "n", "en-US-Standard-C", "Which language name to use for the narration.")
+	recordCmd.Flags().StringVarP(&language, "language", "l", "en-US", "Which language code to use for the narration.")
+	recordCmd.Flags().StringVarP(&languageName, "language-name", "n", "en-US-Standard-C", "Which language name to use for the narration.")
 }
 
 func runRecordCommand(hostPath string, ttsFile string, envVars []string, settings *languageSettings) {
