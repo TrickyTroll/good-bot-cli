@@ -124,7 +124,7 @@ func renderRecording(asciicastPath string, projectPath string, cli *client.Clien
 	inout := make(chan []byte)
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Cmd:   []string{asciicastPath, outputPath},
+		Cmd:   []string{"-S1", asciicastPath, outputPath},
 		Image: "asciinema/asciicast2gif",
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{ // Mounting the location where the script is written.
