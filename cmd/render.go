@@ -306,6 +306,34 @@ func renderVideo(projectPath string) string {
 	return finalPath
 }
 
+func cropRec(recPath string) error {
+	file, err := ioutil.ReadFile(recPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	lines := strings.Split(string(file), "\n")
+	params := strings.Split(lines[1], ",")
+	newWidth := replaceParam(params[1], "24")
+	newHeight := replaceParam(params[2], "80")
+
+	params[1] = newWidth
+	params[2] = newHeight
+
+	lines[0] = strings.Join(params, ",")
+
+	ioutil.WriteFile(recPath, []byte(strings.Join(lines, "\n")), 0644)
+
+	return nil
+}
+
+func replaceParam(paramString string, newParam string) string {
+	editing := strings.Split(paramString, ":")
+	editing[1] = " " + newParam
+
+	return strings.Join(editing, ":")
+}
+
 func getRecsPaths(projectPath string) []string {
 	var allPaths []string
 	// Each dir is a `scene`.
