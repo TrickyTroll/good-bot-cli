@@ -110,7 +110,7 @@ func renderRecording(asciicastPath string, projectPath string, cli *client.Clien
 	}
 
 	// Cropping to 24x80
-	cropRec(asciicastPath)
+	// cropRec(asciicastPath)
 
 	fileName := strings.TrimSuffix(stat.Name(), filepath.Ext(stat.Name()))
 
