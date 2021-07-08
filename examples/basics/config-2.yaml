@@ -30,3 +30,9 @@
       - prompt
       - prompt
     read: I can do all sort of shell commands. It's really up to you to create whatever you want.
+4:
+  - commands:
+      - echo "This was a short demo of Good Bot."
+    expect:
+      - prompt
+    read: I hope you liked this short demo. Goodbye!
