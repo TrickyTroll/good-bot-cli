@@ -17,8 +17,11 @@
 # Vim swap files
 *.sw*
 
-# Container tests. Those tests are always called `toto`.
+# Container tests.
 toto/
+foobar/
+foo/
+bar/
 
 # Env vars
 *.env
