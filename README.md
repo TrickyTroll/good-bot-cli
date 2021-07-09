@@ -102,5 +102,13 @@ This should start recording right away. Please note that the
 `[project-name]` is the name of the directory created with
 `setup`, not the name of your script.
 
+### Manual
+
+#### Available commands
+
+#### Writing scripts
+
+#### Other options
+
 ## Motivation
 
