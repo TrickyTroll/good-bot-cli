@@ -309,10 +309,14 @@ func renderVideo(projectPath string) string {
 	return finalPath
 }
 
+// cropRec "crops" an Asciinema recording to the standard 24x80
+// format. The "cropping" is done by changing the width and height
+// parameters from the asciicast's json recording file.
 func cropRec(recPath string) error {
 	file, err := ioutil.ReadFile(recPath)
+
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	lines := strings.Split(string(file), "\n")
