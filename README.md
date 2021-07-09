@@ -12,7 +12,7 @@ Coming  soon.
 
 > **Note**: With this installation method, `good-bot-cli` will
 > be installed in your `$GOPATH`. If your `$GOPATH` has not
-> been added to your `PATH`, the executable wont be available
+> been added to your `PATH`, the executable won’t be available
 > from everywhere on your machine.
 
 #### Go toolchain
