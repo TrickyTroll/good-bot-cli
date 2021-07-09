@@ -330,6 +330,9 @@ func cropRec(recPath string) error {
 	return nil
 }
 
+// replaceParam replaces a value for a certain parameter from
+// an Asciinema recording file. It returns the provided string
+// with the new parameter instead  of the old one.
 func replaceParam(paramString string, newParam string) string {
 	editing := strings.Split(paramString, ":")
 	editing[1] = " " + newParam
