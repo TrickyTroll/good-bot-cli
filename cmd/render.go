@@ -372,9 +372,13 @@ func getSceneCasts(scenePath string) []string {
 	return sceneRecordings
 }
 
+// getScenePath searches for the name of the scene where the
+// provided recording path is saved. It uses the Dir method
+// from the filepath library twice on the provided recording
+// path.
 func getScenePath(recPath string) string {
 	typePath := filepath.Dir(recPath)
 	// The scene path should be the parent dir
-	// to the type of media.
+	// of the type of media.
 	return filepath.Dir(typePath)
 }
