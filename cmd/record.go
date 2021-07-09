@@ -260,6 +260,9 @@ func parsePasswords(passwordsPath string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
+// copyCredentials unpacks the TTS credentials and passwords from
+// Viper strings into a credentials structure. It returns an instance
+// of credentials filled with values from Viper.
 func copyCredentials() *credentials {
 
 	ttsCredentials := viper.GetString("ttsCredentials")
