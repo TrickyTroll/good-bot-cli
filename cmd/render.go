@@ -202,6 +202,22 @@ func renderRecording(asciicastPath string, projectPath string, cli *client.Clien
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 }
 
+// renderVideo uses Good Bot's Docker image to render a previously
+// recorded video. It uses the render-video command. The project path
+// is used to mount the project's location to the container, since
+// the commands needs access to the project.
+//
+// The Docker image is pulled on each run. The project path is
+// mounted under /project/[PROJECT NAME] in the container.
+//
+// The conversion from Asciinema recordings to the gif format
+// is not done with Good Bot's Docker image. good-bot-cli
+// instead uses the Asciicast2gif image. The conversion of
+// every asciicast is done with the renderRecordings function.
+//
+// The final video is written in the projectPath/final directory.
+//
+// This function also returns the final video's path.
 func renderVideo(projectPath string) string {
 	// Used later for i/o between container and shell
 	inout := make(chan []byte)
