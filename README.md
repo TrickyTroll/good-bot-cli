@@ -65,5 +65,42 @@ be able to:
 
 ## Usage
 
+### TLDR
+
+Good Bot has two main commands, `setup` and `record`.
+You **always** need to run `setup` before the `record` command
+if you are working on a new project.
+
+#### Using `setup`
+
+First, navigate to the directory where your video script is
+saved. Then, to use setup:
+
+##### On a Unix-like system
+
+```shell
+good-bot-cli setup [script-name.yaml]
+```
+
+This should prompt you for a project name. Good Bot will then
+create a new directory that contains everything required by the
+`record` command.
+
+#### Using `record`
+
+Make sure that you are in the same directory as the directory
+that you created with the `setup` command. Then, you should
+be able to record your project using the following instructions.
+
+##### On a Unix-like system
+
+```shell
+good-bot-cli record [project-name]
+```
+
+This should start recording right away. Please note that the
+`[project-name]` is the name of the directory created with
+`setup`, not the name of your script.
+
 ## Motivation
 
