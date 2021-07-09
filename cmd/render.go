@@ -80,7 +80,10 @@ func init() {
 const recordingsPath string = "/asciicasts/"
 const renderPath string = "/gifs/"
 
-// renderAllRecordings uses renderRecording
+// renderAllRecordings uses renderRecording on each Asciinema recording from
+// a project. It uses getRecsPaths to get an array of paths towards each
+// asciicast. This function also pulls Asciicast2gif's Docker image, and
+// provides a client and context  to renderRecording.
 func renderAllRecordings(projectPath string) {
 	// Spawning it only once
 	// Normal context with no timeout.
