@@ -97,11 +97,16 @@ func renderProject(projectPath string) {
 
 	toRecord := getRecsPaths(projectPath)
 	for _, item := range toRecord {
-		renderRecording(item, projectPath, cli, ctx)
+		renderRecording(item, cli, ctx)
 	}
 }
 
-func renderRecording(asciicastPath string, projectPath string, cli *client.Client, ctx context.Context) {
+// renderRecording uses Asciicast2gif's Docker image to convert an
+// asciicast to the gif format. This function does not pull the
+// Docker image, so it needs the client and context passed as arguments.
+// Asciicast2gif is used with the "-S1" flag to reduce the gif's
+// resolution.
+func renderRecording(asciicastPath string, cli *client.Client, ctx context.Context) {
 
 	stat, err := os.Stat(asciicastPath)
 
