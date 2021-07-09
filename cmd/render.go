@@ -337,6 +337,11 @@ func replaceParam(paramString string, newParam string) string {
 	return strings.Join(editing, ":")
 }
 
+// getRecsPaths fetches every recording for a project.
+// It gets a list of every scene and then it uses
+// getSceneCasts to get each Asciinema recording from
+// each scene. It returns an array of paths towards
+// every recording saved in the provided project path.
 func getRecsPaths(projectPath string) []string {
 	var allPaths []string
 	// Each dir is a `scene`.
