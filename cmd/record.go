@@ -51,7 +51,7 @@ command to create the recordings.`,
 		if isDirectory(args[0]) {
 			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords, &languageSettings{language, languageName})
 			if !noRender {
-				renderProject(args[0])
+				renderAllRecordings(args[0])
 				renderVideo(args[0])
 			}
 		} else {

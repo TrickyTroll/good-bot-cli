@@ -47,7 +47,7 @@ process. Once you are happy with the result, the video can be
 rendered afterwards using this command.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// First argument should be the project path.
-		renderProject(args[0])
+		renderAllRecordings(args[0])
 		renderVideo(args[0])
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -80,7 +80,8 @@ func init() {
 const recordingsPath string = "/asciicasts/"
 const renderPath string = "/gifs/"
 
-func renderProject(projectPath string) {
+// renderAllRecordings uses renderRecording
+func renderAllRecordings(projectPath string) {
 	// Spawning it only once
 	// Normal context with no timeout.
 	ctx := context.Background()
