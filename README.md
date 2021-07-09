@@ -10,10 +10,19 @@ Coming  soon.
 
 ### Go install
 
+> **Note**: You will need to have the Go Toolchain installed to
+> use this method.
+
 > **Note**: With this installation method, `good-bot-cli` will
 > be installed in your `$GOPATH`. If your `$GOPATH` has not
 > been added to your `PATH`, the executable won’t be available
 > from everywhere on your machine.
+
+#### Quick install
+
+```shell
+go install github.com/TrickyTroll/good-bot-cli.
+```
 
 #### Go toolchain
 
