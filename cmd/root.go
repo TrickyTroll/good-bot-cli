@@ -116,9 +116,11 @@ func initConfig() {
 	}
 }
 
-func dockerCheck() bool {
+func dockerCheck() {
 	_, err := exec.LookPath("docker")
-	return err == nil
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func askRecDir() string {
