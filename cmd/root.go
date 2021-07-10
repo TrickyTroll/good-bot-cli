@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/manifoldco/promptui"
@@ -113,6 +114,11 @@ func initConfig() {
 			fmt.Println("Ok. Won't be setting a configuration file for now.")
 		}
 	}
+}
+
+func dockerCheck() bool {
+	_, err := exec.LookPath("docker")
+	return err == nil
 }
 
 func askRecDir() string {
