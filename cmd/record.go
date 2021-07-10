@@ -48,6 +48,10 @@ setup command, this command will only use the record
 command to create the recordings.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		credentials := copyCredentials()
+		if !dockerCheck() {
+			err := errors.New("could not find a docker executable")
+			panic(err)
+		}
 		if isDirectory(args[0]) {
 			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords, &languageSettings{language, languageName})
 			if !noRender {
