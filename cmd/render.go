@@ -79,8 +79,8 @@ func init() {
 	// renderCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-const recordingsPath string = "/asciicasts/"
-const renderPath string = "/gifs/"
+const recordingsPath string = "asciicasts"
+const renderPath string = "gifs"
 
 // renderAllRecordings uses renderRecording on each Asciinema recording from
 // a project. It uses getRecsPaths to get an array of paths towards each
@@ -127,7 +127,7 @@ func renderRecording(asciicastPath string, cli *client.Client, ctx context.Conte
 
 	scenePath := getScenePath(asciicastPath)
 
-	outputPath := scenePath + renderPath + fileName + ".gif"
+	outputPath := path.Join(scenePath, renderPath, fileName+".gif")
 
 	currentWorkingDir, err := os.Getwd()
 	if err != nil {
@@ -252,8 +252,8 @@ func renderVideo(projectPath string) string {
 
 	projectName := stats.Name()
 
-	containerProjectPath := "/project" + "/" + projectName
-	finalPath := projectPath + "/final"
+	containerProjectPath := path.Join("/project", projectName)
+	finalPath := path.Join(projectPath, "/final")
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		AttachStdin:  true,
