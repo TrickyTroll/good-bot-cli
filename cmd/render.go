@@ -78,8 +78,8 @@ func init() {
 	// renderCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-const recordingsPath string = "asciicasts"
-const renderPath string = "gifs"
+const recordingsPath string = "/asciicasts/"
+const renderPath string = "/gifs/"
 
 // renderAllRecordings uses renderRecording on each Asciinema recording from
 // a project. It uses getRecsPaths to get an array of paths towards each
