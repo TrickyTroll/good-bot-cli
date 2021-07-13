@@ -399,7 +399,7 @@ func getRecsPaths(projectPath string) []string {
 // paths which is then returned..
 func getSceneCasts(scenePath string) []string {
 	var sceneRecordings []string
-	castsPath := scenePath + recordingsPath
+	castsPath := filepath.Join(scenePath, recordingsPath)
 	recordings, err := ioutil.ReadDir(castsPath)
 	if err != nil {
 		// Probabably means that there are no recordings. No need to Panic.
