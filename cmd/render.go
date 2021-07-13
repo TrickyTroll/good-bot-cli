@@ -24,6 +24,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -385,7 +386,7 @@ func getRecsPaths(projectPath string) []string {
 		log.Panic(err)
 	}
 	for _, dir := range dirs {
-		scenePath := projectPath + "/" + dir.Name()
+		scenePath := path.Join(projectPath, dir.Name())
 		sceneRecordings := getSceneCasts(scenePath)
 		allPaths = append(allPaths, sceneRecordings...)
 	}
