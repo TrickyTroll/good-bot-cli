@@ -24,7 +24,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -127,7 +126,7 @@ func renderRecording(asciicastPath string, cli *client.Client, ctx context.Conte
 
 	scenePath := getScenePath(asciicastPath)
 
-	outputPath := path.Join(scenePath, renderPath, fileName+".gif")
+	outputPath := filepath.Join(scenePath, renderPath, fileName+".gif")
 
 	currentWorkingDir, err := os.Getwd()
 	if err != nil {
@@ -252,8 +251,8 @@ func renderVideo(projectPath string) string {
 
 	projectName := stats.Name()
 
-	containerProjectPath := path.Join("/project", projectName)
-	finalPath := path.Join(projectPath, "/final")
+	containerProjectPath := filepath.Join("/project", projectName)
+	finalPath := filepath.Join(projectPath, "/final")
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		AttachStdin:  true,
@@ -386,7 +385,7 @@ func getRecsPaths(projectPath string) []string {
 		log.Panic(err)
 	}
 	for _, dir := range dirs {
-		scenePath := path.Join(projectPath, dir.Name())
+		scenePath := filepath.Join(projectPath, dir.Name())
 		sceneRecordings := getSceneCasts(scenePath)
 		allPaths = append(allPaths, sceneRecordings...)
 	}
