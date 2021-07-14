@@ -246,6 +246,9 @@ func isDirectory(path string) bool {
 	return info.IsDir()
 }
 
+// parsePasswords reads a password file and stores its values in an array.
+// Using the provided passwordsPath, it reads the file and trims newline
+// characters. The processed lines are then returned.
 func parsePasswords(passwordsPath string) ([]string, error) {
 	file, err := os.Open(passwordsPath)
 	if err != nil {
