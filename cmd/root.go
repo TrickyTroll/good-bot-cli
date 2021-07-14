@@ -147,6 +147,12 @@ func askRecDir() string {
 	return recDir
 }
 
+// askSetConfig prompts the user on whether or not the CLI should be configured
+// right now.
+//
+// It uses the promptui library to provide an interactive yes/no prompt.
+//
+// The result is then returned as a bool (true for yes false for no).
 func askSetConfig() bool {
 	fmt.Println("No configuration file was found!")
 	fmt.Println("Would you like to create one now (yes/no)? ")
