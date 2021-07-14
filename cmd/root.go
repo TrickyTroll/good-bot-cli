@@ -64,30 +64,6 @@ func init() {
 	// when this action is called directly.
 }
 
-// validatePath checks whether or not a path is valid. The check is done using
-// Stat on the path. If there is no error using Stat, validatePath returns
-// true, else it returns false.
-func validatePath(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
-}
-
-// getDir gets the directory where a file is saved. The path returned by
-// this function is a full path. If the current working directory cannot
-// be found, filepath.Abs returns an error. This error is handled by a
-// panic.
-func getDir(path string) string {
-	fullPath, err := filepath.Abs(path)
-	if err != nil {
-		// This should never happen since the path is checked
-		// using validatePath. Panic if it happens.
-		panic(err)
-	}
-	fileDir := filepath.Dir(fullPath)
-
-	return fileDir
-}
-
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
@@ -115,6 +91,30 @@ func initConfig() {
 			fmt.Println("Ok. Won't be setting a configuration file for now.")
 		}
 	}
+}
+
+// validatePath checks whether or not a path is valid. The check is done using
+// Stat on the path. If there is no error using Stat, validatePath returns
+// true, else it returns false.
+func validatePath(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+// getDir gets the directory where a file is saved. The path returned by
+// this function is a full path. If the current working directory cannot
+// be found, filepath.Abs returns an error. This error is handled by a
+// panic.
+func getDir(path string) string {
+	fullPath, err := filepath.Abs(path)
+	if err != nil {
+		// This should never happen since the path is checked
+		// using validatePath. Panic if it happens.
+		panic(err)
+	}
+	fileDir := filepath.Dir(fullPath)
+
+	return fileDir
 }
 
 // dockerCheck checks whether or not the user has Docker installed and
