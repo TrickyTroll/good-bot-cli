@@ -64,7 +64,9 @@ func init() {
 	// when this action is called directly.
 }
 
-// validatePath checks wether or not a path is valid.
+// validatePath checks whether or not a path is valid. The check is done using
+// Stat on the path. If there is no error using Stat, validatePath returns
+// true, else it returns false.
 func validatePath(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
