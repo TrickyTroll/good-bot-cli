@@ -116,6 +116,9 @@ func initConfig() {
 	}
 }
 
+// dockerCheck checks whether or not the user has Docker installed and
+// available. If Docker cannot be found from exec.LookPath, the program
+// exits using log.Fatal.
 func dockerCheck() {
 	_, err := exec.LookPath("docker")
 	if err != nil {
