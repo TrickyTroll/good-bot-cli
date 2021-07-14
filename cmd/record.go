@@ -237,10 +237,15 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 }
 
-// Path should be valid since it's been checked by validatePath()
+// isDirectory checks whether or not a path is a directory. It uses
+// os.Stat to get information on the provided path, and then uses
+// IsDir on the information provided.
 func isDirectory(path string) bool {
+	// path should be valid since it's been checked by validatePath()
 	info, err := os.Stat(path)
 	if err != nil {
+		// If path is not valid, it means that there is a missing
+		// validatePath() somewhere.
 		panic(err)
 	}
 	return info.IsDir()
