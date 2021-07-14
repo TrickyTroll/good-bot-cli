@@ -75,6 +75,10 @@ func validatePath(path string) bool {
 	return true
 }
 
+// getDir gets the directory where a file is saved. The path returned by
+// this function is a full path. If the current working directory cannot
+// be found, filepath.Abs returns an error. This error is handled by a
+// panic.
 func getDir(path string) string {
 	fullPath, err := filepath.Abs(path)
 	if err != nil {
