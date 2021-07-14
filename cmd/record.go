@@ -116,6 +116,18 @@ audio recordings. No gifs or mp4 files are produced.`)
 	recordCmd.Flags().StringVarP(&languageName, "language-name", "n", "en-US-Standard-C", "Which language name to use for the narration.")
 }
 
+// runRecordCommand uses Good Bot's record command to record a project.
+//
+// The record command uses the directory created by setup to create Asciinema
+// recordings and mp3 audio from the TTS engine.
+//
+// This function takes care of setting environment variables in the container.
+// It also creates the appropriate mount on the host computer to read and
+// write on the project directory. The directory where the TTS credentials
+// file is saved is  also mounted to give Good Bot access to the credentials.
+//
+// runRecordCommand also sets language settings by providing the required
+// flags to the container's command-line interface.
 func runRecordCommand(hostPath string, ttsFile string, envVars []string, settings *languageSettings) {
 	// Used later for i/o between container and shell
 	inout := make(chan []byte)
