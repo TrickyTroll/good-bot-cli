@@ -46,8 +46,9 @@ The --no-render flag can be used to speed up the recording
 process. Once you are happy with the result, the video can be
 rendered afterwards using this command.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		dockerCheck()
 		// First argument should be the project path.
-		renderProject(args[0])
+		renderAllRecordings(args[0])
 		renderVideo(args[0])
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -80,7 +81,11 @@ func init() {
 const recordingsPath string = "/asciicasts/"
 const renderPath string = "/gifs/"
 
-func renderProject(projectPath string) {
+// renderAllRecordings uses renderRecording on each Asciinema recording from
+// a project. It uses getRecsPaths to get an array of paths towards each
+// asciicast. This function also pulls Asciicast2gif's Docker image, and
+// provides a client and context  to renderRecording.
+func renderAllRecordings(projectPath string) {
 	// Spawning it only once
 	// Normal context with no timeout.
 	ctx := context.Background()
@@ -97,11 +102,16 @@ func renderProject(projectPath string) {
 
 	toRecord := getRecsPaths(projectPath)
 	for _, item := range toRecord {
-		renderRecording(item, projectPath, cli, ctx)
+		renderRecording(item, cli, ctx)
 	}
 }
 
-func renderRecording(asciicastPath string, projectPath string, cli *client.Client, ctx context.Context) {
+// renderRecording uses Asciicast2gif's Docker image to convert an
+// asciicast to the gif format. This function does not pull the
+// Docker image, so it needs the client and context passed as arguments.
+// Asciicast2gif is used with the "-S1" flag to reduce the gif's
+// resolution.
+func renderRecording(asciicastPath string, cli *client.Client, ctx context.Context) {
 
 	stat, err := os.Stat(asciicastPath)
 
@@ -116,7 +126,7 @@ func renderRecording(asciicastPath string, projectPath string, cli *client.Clien
 
 	scenePath := getScenePath(asciicastPath)
 
-	outputPath := scenePath + renderPath + fileName + ".gif"
+	outputPath := filepath.Join(scenePath, renderPath, fileName+".gif")
 
 	currentWorkingDir, err := os.Getwd()
 	if err != nil {
@@ -202,6 +212,22 @@ func renderRecording(asciicastPath string, projectPath string, cli *client.Clien
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 }
 
+// renderVideo uses Good Bot's Docker image to render a previously
+// recorded video. It uses the render-video command. The project path
+// is used to mount the project's location to the container, since
+// the commands needs access to the project.
+//
+// The Docker image is pulled on each run. The project path is
+// mounted under /project/[PROJECT NAME] in the container.
+//
+// The conversion from Asciinema recordings to the gif format
+// is not done with Good Bot's Docker image. good-bot-cli
+// instead uses the Asciicast2gif image. The conversion of
+// every asciicast is done with the renderRecordings function.
+//
+// The final video is written in the projectPath/final directory.
+//
+// This function also returns the final video's path.
 func renderVideo(projectPath string) string {
 	// Used later for i/o between container and shell
 	inout := make(chan []byte)
@@ -225,8 +251,8 @@ func renderVideo(projectPath string) string {
 
 	projectName := stats.Name()
 
-	containerProjectPath := "/project" + "/" + projectName
-	finalPath := projectPath + "/final"
+	containerProjectPath := filepath.Join("/project", projectName)
+	finalPath := filepath.Join(projectPath, "/final")
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		AttachStdin:  true,
@@ -309,10 +335,14 @@ func renderVideo(projectPath string) string {
 	return finalPath
 }
 
+// cropRec "crops" an Asciinema recording to the standard 24x80
+// format. The "cropping" is done by changing the width and height
+// parameters from the asciicast's json recording file.
 func cropRec(recPath string) error {
 	file, err := ioutil.ReadFile(recPath)
+
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	lines := strings.Split(string(file), "\n")
@@ -330,6 +360,9 @@ func cropRec(recPath string) error {
 	return nil
 }
 
+// replaceParam replaces a value for a certain parameter from
+// an Asciinema recording file. It returns the provided string
+// with the new parameter instead  of the old one.
 func replaceParam(paramString string, newParam string) string {
 	editing := strings.Split(paramString, ":")
 	editing[1] = " " + newParam
@@ -337,6 +370,11 @@ func replaceParam(paramString string, newParam string) string {
 	return strings.Join(editing, ":")
 }
 
+// getRecsPaths fetches every recording for a project.
+// It gets a list of every scene and then it uses
+// getSceneCasts to get each Asciinema recording from
+// each scene. It returns an array of paths towards
+// every recording saved in the provided project path.
 func getRecsPaths(projectPath string) []string {
 	var allPaths []string
 	// Each dir is a `scene`.
@@ -347,16 +385,21 @@ func getRecsPaths(projectPath string) []string {
 		log.Panic(err)
 	}
 	for _, dir := range dirs {
-		scenePath := projectPath + "/" + dir.Name()
+		scenePath := filepath.Join(projectPath, dir.Name())
 		sceneRecordings := getSceneCasts(scenePath)
 		allPaths = append(allPaths, sceneRecordings...)
 	}
 	return allPaths
 }
 
+// getSceneCasts looks for each Asciinema recording saved under
+// the provided scene path. For each file contained in the
+// recordings path of a scene, this function checks if the file's
+// extension is ".cast". Each match is appended to an array of
+// paths which is then returned..
 func getSceneCasts(scenePath string) []string {
 	var sceneRecordings []string
-	castsPath := scenePath + recordingsPath
+	castsPath := filepath.Join(scenePath, recordingsPath)
 	recordings, err := ioutil.ReadDir(castsPath)
 	if err != nil {
 		// Probabably means that there are no recordings. No need to Panic.
@@ -372,9 +415,13 @@ func getSceneCasts(scenePath string) []string {
 	return sceneRecordings
 }
 
+// getScenePath searches for the name of the scene where the
+// provided recording path is saved. It uses the Dir method
+// from the filepath library twice on the provided recording
+// path.
 func getScenePath(recPath string) string {
 	typePath := filepath.Dir(recPath)
 	// The scene path should be the parent dir
-	// to the type of media.
+	// of the type of media.
 	return filepath.Dir(typePath)
 }

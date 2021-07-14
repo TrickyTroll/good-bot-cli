@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/manifoldco/promptui"
@@ -63,29 +64,6 @@ func init() {
 	// when this action is called directly.
 }
 
-func validatePath(path string) bool {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true
-	}
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
-func getDir(path string) string {
-	fullPath, err := filepath.Abs(path)
-	if err != nil {
-		// This should never happen since the path is checked
-		// using validatePath. Panic if it happens.
-		panic(err)
-	}
-	fileDir := filepath.Dir(fullPath)
-
-	return fileDir
-}
-
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
@@ -115,6 +93,40 @@ func initConfig() {
 	}
 }
 
+// validatePath checks whether or not a path is valid. The check is done using
+// Stat on the path. If there is no error using Stat, validatePath returns
+// true, else it returns false.
+func validatePath(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+// getDir gets the directory where a file is saved. The path returned by
+// this function is a full path. If the current working directory cannot
+// be found, filepath.Abs returns an error. This error is handled by a
+// panic.
+func getDir(path string) string {
+	fullPath, err := filepath.Abs(path)
+	if err != nil {
+		// This should never happen since the path is checked
+		// using validatePath. Panic if it happens.
+		panic(err)
+	}
+	fileDir := filepath.Dir(fullPath)
+
+	return fileDir
+}
+
+// dockerCheck checks whether or not the user has Docker installed and
+// available. If Docker cannot be found from exec.LookPath, the program
+// exits using log.Fatal.
+func dockerCheck() {
+	_, err := exec.LookPath("docker")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func askRecDir() string {
 	validatePath := func(path string) error {
 		_, err := os.Stat(path)
@@ -139,6 +151,12 @@ func askRecDir() string {
 	return recDir
 }
 
+// askSetConfig prompts the user on whether or not the CLI should be configured
+// right now.
+//
+// It uses the promptui library to provide an interactive yes/no prompt.
+//
+// The result is then returned as a bool (true for yes false for no).
 func askSetConfig() bool {
 	fmt.Println("No configuration file was found!")
 	fmt.Println("Would you like to create one now (yes/no)? ")

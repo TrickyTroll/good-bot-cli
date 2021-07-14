@@ -43,6 +43,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		dockerCheck()
 		runSetupCommand(args[0], "/project")
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -72,6 +73,17 @@ func init() {
 	// setupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// runSetupCommand uses Good Bot's Docker image to set up the project. It pulls
+// the image on each run. The container's output is copied to the shell's
+// stdout and the container is started interactively. This allows the user to
+// answer the prompt when Good Bot asks for the name of the project.
+//
+// filePath is the path towards the script file, and containerPath is the path
+// towards the file once it is mounted in the container.
+//
+// This function also uses the Docker SDK to mount the directory where the
+// configuration file is located.This is also where the project directory
+// will be created.
 func runSetupCommand(filePath string, containerPath string) {
 
 	// Used later for i/o between container and shell

@@ -56,6 +56,11 @@ func init() {
 	// configureCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// setConfig creates an interactive prompt for the user to create a
+// configuration file. This function uses promptui to ask for a path
+// towards the TTS API key and a path towards the passwords file. The
+// information collected by setConfig is then written to the chosen
+// Viper configuration file.
 func setConfig() {
 	/*
 		There are 2 things that a user needs to set up in

@@ -47,11 +47,12 @@ If the argument is already a directory created by the
 setup command, this command will only use the record
 command to create the recordings.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		dockerCheck()
 		credentials := copyCredentials()
 		if isDirectory(args[0]) {
 			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords, &languageSettings{language, languageName})
 			if !noRender {
-				renderProject(args[0])
+				renderAllRecordings(args[0])
 				renderVideo(args[0])
 			}
 		} else {
@@ -115,6 +116,18 @@ audio recordings. No gifs or mp4 files are produced.`)
 	recordCmd.Flags().StringVarP(&languageName, "language-name", "n", "en-US-Standard-C", "Which language name to use for the narration.")
 }
 
+// runRecordCommand uses Good Bot's record command to record a project.
+//
+// The record command uses the directory created by setup to create Asciinema
+// recordings and mp3 audio from the TTS engine.
+//
+// This function takes care of setting environment variables in the container.
+// It also creates the appropriate mount on the host computer to read and
+// write on the project directory. The directory where the TTS credentials
+// file is saved is  also mounted to give Good Bot access to the credentials.
+//
+// runRecordCommand also sets language settings by providing the required
+// flags to the container's command-line interface.
 func runRecordCommand(hostPath string, ttsFile string, envVars []string, settings *languageSettings) {
 	// Used later for i/o between container and shell
 	inout := make(chan []byte)
@@ -236,15 +249,23 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 }
 
-// Path should be valid since it's been checked by validatePath()
+// isDirectory checks whether or not a path is a directory. It uses
+// os.Stat to get information on the provided path, and then uses
+// IsDir on the information provided.
 func isDirectory(path string) bool {
+	// path should be valid since it's been checked by validatePath()
 	info, err := os.Stat(path)
 	if err != nil {
+		// If path is not valid, it means that there is a missing
+		// validatePath() somewhere.
 		panic(err)
 	}
 	return info.IsDir()
 }
 
+// parsePasswords reads a password file and stores its values in an array.
+// Using the provided passwordsPath, it reads the file and trims newline
+// characters. The processed lines are then returned.
 func parsePasswords(passwordsPath string) ([]string, error) {
 	file, err := os.Open(passwordsPath)
 	if err != nil {
@@ -260,6 +281,9 @@ func parsePasswords(passwordsPath string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
+// copyCredentials unpacks the TTS credentials and passwords from
+// Viper strings into a credentials structure. It returns an instance
+// of credentials filled with values from Viper.
 func copyCredentials() *credentials {
 
 	ttsCredentials := viper.GetString("ttsCredentials")
