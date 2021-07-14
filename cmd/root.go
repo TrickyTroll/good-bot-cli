@@ -64,15 +64,10 @@ func init() {
 	// when this action is called directly.
 }
 
+// validatePath checks wether or not a path is valid.
 func validatePath(path string) bool {
 	_, err := os.Stat(path)
-	if err == nil {
-		return true
-	}
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 // getDir gets the directory where a file is saved. The path returned by
