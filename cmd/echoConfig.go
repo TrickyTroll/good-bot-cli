@@ -47,6 +47,9 @@ func init() {
 	// echoConfigCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// echo gets the values that are set in a user's configuration file and prints
+// them. If no value for a certain param can be found, the user is told that
+// no value could be found.
 func echo() {
 	if viper.GetString("ttsCredentials") != "" {
 		ttsCredentials := viper.GetString("ttsCredentials")
