@@ -155,6 +155,20 @@ and renders a video from it. It is essentially the missing part of the
 to the `gif` format and merges the audio and video files to create 
 `mp4` files from your project.
 
+##### `setup`
+
+This command uses your script (the YAML instruction file you wrote)
+to create a directory that contains the information required for the
+`record` command. It essentially splits your config file into many
+smaller files that will be used by Good Bot's modules
+(the [runner](https://github.com/TrickyTroll/good-bot-runner), Google
+TTS, [ezvi](https://github.com/TrickyTroll/ezvi)).
+
+You need to provide the path towards the script as an argument.
+
+For more information on writing scripts, see
+[Writing scripts](#writing-scripts).
+
 #### Writing scripts
 
 #### Other options
