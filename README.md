@@ -122,6 +122,11 @@ the previous parameters.
 When using another Good Bot command, the `configure` command will run
 automatically if no configuration file is found.
 
+##### `echoConfig`
+
+The `echoConfig` simply outputs the configuration file. Can be used
+to know which credential and password files will be used.
+
 #### Writing scripts
 
 #### Other options
