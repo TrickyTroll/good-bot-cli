@@ -49,7 +49,9 @@ rendered afterwards using this command.`,
 		dockerCheck()
 		// First argument should be the project path.
 		renderAllRecordings(args[0])
-		renderVideo(args[0])
+		if !gifsOnly {
+			renderVideo(args[0])
+		}
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
@@ -64,6 +66,8 @@ rendered afterwards using this command.`,
 	},
 }
 
+var gifsOnly bool
+
 func init() {
 	rootCmd.AddCommand(renderCmd)
 
@@ -75,7 +79,7 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// renderCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	renderCmd.Flags().BoolVar(&gifsOnly, "gifs-only", false, "Only produce gifs. No mp4 files will be created.")
 }
 
 const recordingsPath string = "/asciicasts/"
