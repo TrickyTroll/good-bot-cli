@@ -104,6 +104,9 @@ This should start recording right away. Please note that the
 
 ### Manual
 
+General instructions on how to use `good-bot-cli`. Some more
+tourough documentation is [coming soon](https://github.com/TrickyTroll/good-bot-cli/issues/10).
+
 #### Available commands
 
 #### Writing scripts
