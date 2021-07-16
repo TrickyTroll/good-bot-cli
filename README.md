@@ -127,6 +127,26 @@ automatically if no configuration file is found.
 The `echoConfig` simply outputs the configuration file. Can be used
 to know which credential and password files will be used.
 
+##### `record`
+
+The record command uses a project directory previously created by
+the [`setup`](#setup) command to record a video. This command takes
+care of typing the command while recording and sending the text files
+to Google Text to Speech to generate audio. When executed with no
+flags, this command also merges the videos produced for each scene
+in a final video.
+
+There are two additional options when using the `record` command:
+
+* `--no-render`: Only produces Asciinema recordings and `mp3` narration.
+  Does not convert the recordings to the gif format and does not create
+  any `mp4` file.
+
+* `--gifs-only`: Only convert the Asciinema recordings to the `gif`
+  format. The final product will contain the converted gifs, the
+  original `asciicasts`, and the audio narration. No `mp4` file will
+  be created.
+
 #### Writing scripts
 
 #### Other options
