@@ -113,7 +113,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// recordCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	renderCmd.Flags().BoolVar(&gifsOnly, "gifs-only", false, "Only produce gifs. No mp4 files will be created.")
+	recordCmd.Flags().BoolVar(&gifsOnly, "gifs-only", false, "Only produce gifs. No mp4 files will be created.")
 	recordCmd.Flags().BoolVar(&noRender, "no-render", false, `If not rendering, Good-Bot only outputs asciicasts and 
 audio recordings. No gifs or mp4 files are produced.`)
 	recordCmd.Flags().StringVarP(&language, "language", "l", "en-US", "Which language code to use for the narration.")
