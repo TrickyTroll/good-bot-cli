@@ -112,3 +112,31 @@ This should start recording right away. Please note that the
 
 ## Motivation
 
+Before writing `good-bot-cli`, Good Bot was only distributed as a
+Docker image. This allows the program to always start recording in a 
+new environment with nothing installed. You won't need to manually 
+uninstall every program that was installed for your demo each time
+you want to record a new take.
+
+The main problem with containerized application is that it makes file
+and environment sharing between the host and the container quite
+tedious.
+
+When using Google Text to Speech and passwords at the same time, the
+`record` command had to look something like this:
+
+```shell
+docker run -it -v $PWD:/project -v /home/tricky/Documents/credentials:/credentials --env GOOGLE_APPLICATION_CREDENTIALS=/credentials/good-bot-tts.json --env-file /home/tricky/Documents/credentials/good-bot.env gb record project
+```
+
+Two hundred and sixty-six characters for a single command wasn't very reasonable.
+
+`good-bot-cli` allows a user to interactively configure each path
+towards files that are required by Good Bot. The CLI also takes
+care of making the required mounts and starts the container in
+interactive mode when required. Once the configuration process is
+completed, `good-bot-cli` would tun the previous command to this:
+
+```shell
+good-bot-cli record project
+```
