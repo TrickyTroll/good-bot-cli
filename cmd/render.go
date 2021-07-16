@@ -66,8 +66,6 @@ rendered afterwards using this command.`,
 	},
 }
 
-var gifsOnly bool
-
 func init() {
 	rootCmd.AddCommand(renderCmd)
 
@@ -79,6 +77,8 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
+
+	// gifsOnly is defined in record.go
 	renderCmd.Flags().BoolVar(&gifsOnly, "gifs-only", false, "Only produce gifs. No mp4 files will be created.")
 }
 
