@@ -109,6 +109,19 @@ tourough documentation is [coming soon](https://github.com/TrickyTroll/good-bot-
 
 #### Available commands
 
+##### `configure`
+
+`configure` allows you to interactively set up the variables required
+by Good Bot to use the TTS engine and to use passwords. After entering
+the command, an interactive prompt will ask you to provide the path
+towards your text to speech key and password file.
+
+If Good Bot had already been configured, this command will overwrite
+the previous parameters.
+
+When using another Good Bot command, the `configure` command will run
+automatically if no configuration file is found.
+
 #### Writing scripts
 
 #### Other options
