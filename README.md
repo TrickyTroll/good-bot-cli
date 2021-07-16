@@ -147,6 +147,14 @@ There are two additional options when using the `record` command:
   original `asciicasts`, and the audio narration. No `mp4` file will
   be created.
 
+##### `render`
+
+`render` uses a project that has been recorded but not rendered yet
+and renders a video from it. It is essentially the missing part of the
+`record --no-render` command. This command converts the `asciicasts`
+to the `gif` format and merges the audio and video files to create 
+`mp4` files from your project.
+
 #### Writing scripts
 
 #### Other options
