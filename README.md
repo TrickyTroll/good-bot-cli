@@ -6,7 +6,7 @@ Good-bot's command line interface for Docker containers.
 
 ### Binary download
 
-Coming  soon.
+**Coming soon.**
 
 ### Go install
 
