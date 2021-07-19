@@ -171,6 +171,73 @@ For more information on writing scripts, see
 
 #### Writing scripts
 
+When writing your script, you should follow certain guidelines to
+make sure that Good Bot behaves as expected.
+
+First, your script should follow the YAML syntax and preferably be
+saved with the `yaml` extension.
+
+##### The script
+
+Here is what a configuration file could look like:
+
+```yaml
+1:
+  - commands:
+      - echo 'hello world'
+    expect:
+      - prompt
+    read: Hello, world.
+
+  - commands:
+      - ls -a
+    expect:
+      - prompt
+    read: I can run commands.
+2:
+  - commands:
+      - echo 'hello from another scene'
+    expect:
+      - prompt
+    read: Here is a new scene!
+3:
+  - commands:
+      - echo 'I can also be quiet...sometimes'
+    expect:
+      - prompt
+```
+
+In this example, the script is divided into three different scenes. A
+scene is a bloc of actions that will be recorded together and share the
+same shell and variables. Grouping your commands in the same scene also
+guarantees that they will be running in order. In this example, the 
+scenes 1, 2 and 3 could be recorded in a different order than 1, 2 and 
+then 3.
+
+##### A scene
+
+```yaml
+1:
+  - commands:
+      - echo 'hello world'
+    expect:
+      - prompt
+    read: Hello, world.
+
+  - commands:
+      - ls -a
+    expect:
+      - prompt
+    read: I can run commands.
+```
+*This is just the first scene.*
+
+Each scene contains actions and optionally text that should be narrated
+while the action is performed. In this first scene, there are two
+different action blocs, and each one performs the "commands" type of
+action. There are currently three different types of action available,
+but only "commands" is documented here.
+
 ## Motivation
 
 Before writing `good-bot-cli`, Good Bot was only distributed as a
