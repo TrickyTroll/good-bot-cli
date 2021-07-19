@@ -171,8 +171,6 @@ For more information on writing scripts, see
 
 #### Writing scripts
 
-#### Other options
-
 ## Motivation
 
 Before writing `good-bot-cli`, Good Bot was only distributed as a
