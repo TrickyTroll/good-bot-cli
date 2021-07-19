@@ -238,6 +238,50 @@ different action blocs, and each one performs the "commands" type of
 action. There are currently three different types of action available,
 but only "commands" is documented here.
 
+##### The commands action
+
+```yaml
+- commands:
+    - echo 'hello world'
+  expect:
+    - prompt
+  read: Hello, world.
+```
+
+Commands allow you to interact with a terminal. It uses Good Bot's 
+`runner` program to interact with the shell (bash by default). Each
+command is "typed" to the prompt using `runner`. The `expect`
+statement can be used to expect certain things to be printed on
+the shell before sending the next command. This can be used to interact
+with a program just like a human would.
+
+In the next script, the `commands` action is used to interact with
+`ssh`. Using the `expect` keyword, Good Bot can answer (yes/no) and
+password prompts.
+
+```yaml
+1:
+- commands:
+  - echo "I'm in a container."
+  - ssh -p 2222 tricky@ssh-test-server
+  - "yes"
+  - password: SSH_TRICKY
+  - echo 'Hello from another container!'
+  expect:
+  - prompt
+  - "(yes/no)"
+  - assword
+  - prompt
+  - prompt
+  read: Good bot also lets you use passwords by setting environment variables. In this example, a password is used to connect to a remote machine.
+```
+
+If you are familiar with Don Libes'
+[Expect](https://en.wikipedia.org/wiki/Expect), Good Bot's 
+implementation is very similar. It uses a Python implementation of
+expect. For more information on using Good Bot's `runner` program,
+go check the [repo](https://github.com/TrickyTroll/good-bot-runner).
+
 ## Motivation
 
 Before writing `good-bot-cli`, Good Bot was only distributed as a
