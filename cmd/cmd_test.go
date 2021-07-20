@@ -3,8 +3,17 @@ package cmd
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
+	"testing"
 )
+
+func TestMain(m *testing.M) {
+	projectDir := setup()
+	defer os.RemoveAll(projectDir) // cleanup
+	testsRes := m.Run()
+	os.Exit(testsRes)
+}
 
 var toCreate = struct {
 	testProject string
