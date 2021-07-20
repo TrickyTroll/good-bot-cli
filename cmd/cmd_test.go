@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
+	"testing"
 )
 
 var toCreate = struct {
@@ -11,18 +13,20 @@ var toCreate = struct {
 	testFile    string
 }{"project", "testDir", "testFile"}
 
-func makeTempProject() (string, error) {
+func setup() {
 	projectDir, err := ioutil.TempDir("", toCreate.testProject)
 
 	if err != nil {
-		return "", err
+		log.Fatal(err)
 	}
 	defer os.RemoveAll(projectDir) // clean up
 
 	ioutil.TempDir(projectDir, toCreate.testDir)
 	ioutil.TempFile(projectDir, toCreate.testFile)
-
-	return projectDir, nil
 }
 
-var tempProject, err = makeTempProject()
+func TestMain(m *testing.M) {
+	setup()
+	testsRes := m.Run()
+	os.Exit(testsRes)
+}
