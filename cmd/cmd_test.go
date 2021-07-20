@@ -39,7 +39,7 @@ func setup() string {
 
 	testData.project = projectDir
 	testData.dir = dirname
-	testData.file = filepath.Join(projectDir, file.Name())
+	testData.file = filepath.Join(file.Name())
 
 	return projectDir
 }
