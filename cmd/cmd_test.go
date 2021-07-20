@@ -3,7 +3,6 @@ package cmd
 import (
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
 )
 
@@ -19,13 +18,12 @@ var testData = struct {
 	file    string
 }{"", "", ""}
 
-func setup() {
+func setup() string {
 	projectDir, err := ioutil.TempDir("", toCreate.testProject)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.RemoveAll(projectDir) // clean up
 
 	dirname, err := ioutil.TempDir(projectDir, toCreate.testDir)
 	if err != nil {
@@ -42,4 +40,6 @@ func setup() {
 	testData.project = projectDir
 	testData.dir = dirname
 	testData.file = filepath.Join(projectDir, file.Name())
+
+	return projectDir
 }
