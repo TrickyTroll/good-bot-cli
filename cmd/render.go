@@ -124,7 +124,12 @@ func renderRecording(asciicastPath string, cli *client.Client, ctx context.Conte
 
 	fileName := strings.TrimSuffix(stat.Name(), filepath.Ext(stat.Name()))
 
-	scenePath := getScenePath(asciicastPath)
+	scenePath, err := getScenePath(asciicastPath)
+
+	if err != nil {
+		log.Printf("Could not render file: %s\n%s", asciicastPath, err)
+		return
+	}
 
 	outputPath := filepath.Join(scenePath, renderPath, fileName+".gif")
 
@@ -419,9 +424,14 @@ func getSceneCasts(scenePath string) []string {
 // provided recording path is saved. It uses the Dir method
 // from the filepath library twice on the provided recording
 // path.
-func getScenePath(itemPath string) string {
+func getScenePath(itemPath string) (string, error) {
+	// Cheking if file exists.
+	_, err := os.Stat(itemPath)
+	if err != nil {
+		return "", err
+	}
 	typePath := filepath.Dir(itemPath)
 	// The scene path should be the parent dir
 	// of the type of media.
-	return filepath.Dir(typePath)
+	return filepath.Dir(typePath), nil
 }
