@@ -8,6 +8,11 @@ import (
 	"testing"
 )
 
+// TestGetSceneCastsOnCasts tests getSceneCasts on a scene that
+// only contains Asciinema recordings. Testing is done by getting the
+// length of the array that is returned by getSceneCasts. Elements
+// are not individually checked to make sure that they are really
+// paths towards asciicasts.
 func TestGetSceneCastsOnCasts(t *testing.T) {
 	scenePath, err := filepath.Abs("../testdata/scene_1")
 	if err != nil {
@@ -15,14 +20,16 @@ func TestGetSceneCastsOnCasts(t *testing.T) {
 	}
 	casts := getSceneCasts(scenePath)
 
-	allFiles, err := ioutil.ReadDir(filepath.Join(scenePath, "asciicasts"))
+	allFiles, err := ioutil.ReadDir(filepath.Join(scenePath, recordingsPath))
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	if len(allFiles) != 2 {
-		t.Errorf("testdata in %s should contain 2 asciicasts", scenePath)
+	want := 2
+
+	if len(allFiles) != want {
+		t.Errorf("testdata in %s should contain %d asciicasts", scenePath, want)
 	}
 
 	if len(casts) != 2 {
