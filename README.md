@@ -21,7 +21,7 @@ Good-bot's command line interface for Docker containers.
 #### Quick install
 
 ```shell
-go install github.com/TrickyTroll/good-bot-cli.
+go install github.com/TrickyTroll/good-bot-cli
 ```
 
 #### Go toolchain
