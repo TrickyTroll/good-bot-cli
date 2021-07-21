@@ -66,7 +66,6 @@ func TestGetSceneCastsOnCasts(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error finding testdata: %s", err)
 	}
-	casts := getSceneCasts(scenePath)
 
 	allFiles, err := ioutil.ReadDir(filepath.Join(scenePath, recordingsPath))
 
@@ -80,8 +79,10 @@ func TestGetSceneCastsOnCasts(t *testing.T) {
 		t.Errorf("testdata in %s should contain %d asciicasts", scenePath, want)
 	}
 
-	if len(casts) != 2 {
-		t.Errorf("getSceneCasts(%s) returns an array of len (%d), should be 2", scenePath, len(casts))
+	casts := getSceneCasts(scenePath)
+
+	if len(casts) != want {
+		t.Errorf("getSceneCasts(%s) returns an array of len (%d), should be %d", scenePath, len(casts), want)
 	}
 }
 
@@ -93,8 +94,6 @@ func TestGetSceneCastsWithExtra(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error finding testdata: %s", err)
 	}
-
-	casts := getSceneCasts(scenePath)
 
 	allFiles, err := ioutil.ReadDir(filepath.Join(scenePath, recordingsPath))
 
@@ -109,6 +108,8 @@ func TestGetSceneCastsWithExtra(t *testing.T) {
 	}
 
 	want := 1
+
+	casts := getSceneCasts(scenePath)
 
 	if len(casts) != want {
 		t.Errorf("getSceneCasts(%s) returns an array of len (%d), should be %d", scenePath, len(casts), want)
