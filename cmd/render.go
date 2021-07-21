@@ -424,6 +424,8 @@ func getSceneCasts(scenePath string) []string {
 // provided recording path is saved. It uses the Dir method
 // from the filepath library until the base of the path contains
 // "scene_".
+//
+// Returns an absolute path.
 func getScenePath(itemPath string) (string, error) {
 	// Cheking if file exists.
 	var scenePath string
@@ -433,11 +435,22 @@ func getScenePath(itemPath string) (string, error) {
 		return "", err
 	}
 	base := filepath.Base(itemPath)
-	for !(strings.Contains(base, "scene_")) {
+
+	// Go back until the base of the path  contains "scene_"
+	for {
+		if strings.Contains(base, "scene_") {
+			break
+		}
 		scenePath = filepath.Dir(scenePath)
 		base = filepath.Base(scenePath)
 	}
 	// The scene path should be the parent dir
 	// of the type of media.
-	return scenePath, nil
+	abs, err := filepath.Abs(scenePath)
+
+	if err != nil {
+		return "", err
+	}
+
+	return abs, nil
 }
