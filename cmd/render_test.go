@@ -8,6 +8,54 @@ import (
 	"testing"
 )
 
+func TestGetSceneCastsReturns(t *testing.T) {
+	scenePath, err := filepath.Abs("../testdata/scene_1")
+
+	if err != nil {
+		t.Errorf("Error finding testdata: %s", err)
+	}
+
+	allFiles, err := ioutil.ReadDir(filepath.Join(scenePath, recordingsPath))
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	want := 2
+
+	if len(allFiles) != want {
+		t.Errorf("testdata in %s should contain %d asciicasts", scenePath, want)
+	}
+
+	casts := getSceneCasts(scenePath)
+
+	// Checking each file if it is an asciicast.
+	for _, file := range casts {
+		// File exists
+		info, err := os.Stat(file)
+
+		if err != nil {
+			t.Errorf("Got error using Stat on one of getSceneCasts returned value:\n%s", err)
+		}
+
+		name := info.Name()
+		allowedSuffixes := [3]string{"cast", "json", "txt"}
+		isOk := false
+
+		for _, suffix := range allowedSuffixes {
+			// If file has one of the allowed suffixes, it's valid.
+			if strings.HasSuffix(name, suffix) {
+				isOk = true
+				break
+			}
+		}
+
+		if !isOk {
+			t.Errorf("%s does not have one of the allowed extensions. Allowed extensions are %s", name, allowedSuffixes)
+		}
+	}
+}
+
 // TestGetSceneCastsOnCasts tests getSceneCasts on a scene that
 // only contains Asciinema recordings. Testing is done by getting the
 // length of the array that is returned by getSceneCasts. Elements
