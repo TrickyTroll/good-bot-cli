@@ -30,6 +30,36 @@ func TestGetSceneCastsOnCasts(t *testing.T) {
 	}
 }
 
+// TestGetSceneCastsWithExtra tests getSceneCasts with extra text files
+// that should not be recognized as asciicast files. Those files are
+// contained in the second scene of the testdata directory.
+func TestGetSceneCastsWithExtra(t *testing.T) {
+	scenePath, err := filepath.Abs("../testdata/scene_2")
+	if err != nil {
+		t.Errorf("Error finding testdata: %s", err)
+	}
+
+	casts := getSceneCasts(scenePath)
+
+	allFiles, err := ioutil.ReadDir(filepath.Join(scenePath, recordingsPath))
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	filesAmount := 4
+
+	if len(allFiles) != filesAmount {
+		t.Errorf("testdata in %s should contain %d asciicasts", scenePath, filesAmount)
+	}
+
+	want := 1
+
+	if len(casts) != want {
+		t.Errorf("getSceneCasts(%s) returns an array of len (%d), should be %d", scenePath, len(casts), want)
+	}
+}
+
 func TestGetScenePath(t *testing.T) {
 	path, err := filepath.Abs("../testdata/scene_2/read/read_1.txt")
 	if err != nil {
