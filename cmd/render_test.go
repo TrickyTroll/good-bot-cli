@@ -8,6 +8,15 @@ import (
 	"testing"
 )
 
+// TestGetSceneCastsContents makes sure that the contents of each
+// file that corresponds to a path returned by getSceneCasts seems
+// to be a valid asciicast. This test is made by checking if the
+// contents of the file's first line contains the same keys as an
+// asciicast v2 file.
+func TestGetSceneCastsContents(t *testing.T) {
+
+}
+
 // TestGetSceneCastsReturns checks the returned values from
 // getSceneCasts. Each value should be a path towards an
 // asciicast file. Each path is tested by making sure that
