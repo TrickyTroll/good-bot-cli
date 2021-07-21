@@ -8,6 +8,10 @@ import (
 	"testing"
 )
 
+// TestGetSceneCastsReturns checks the returned values from
+// getSceneCasts. Each value should be a path towards an
+// asciicast file. Each path is tested by making sure that
+// the file exists and that it has one of the allowed extensions.
 func TestGetSceneCastsReturns(t *testing.T) {
 	scenePath, err := filepath.Abs("../testdata/scene_1")
 
