@@ -1,11 +1,34 @@
 package cmd
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestGetSceneCastsOnCasts(t *testing.T) {
+	scenePath, err := filepath.Abs("../testdata/scene_1")
+	if err != nil {
+		t.Errorf("Error finding testdata: %s", err)
+	}
+	casts := getSceneCasts(scenePath)
+
+	allFiles, err := ioutil.ReadDir(filepath.Join(scenePath, "asciicasts"))
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(allFiles) != 2 {
+		t.Errorf("testdata in %s should contain 2 asciicasts", scenePath)
+	}
+
+	if len(casts) != 2 {
+		t.Errorf("getSceneCasts(%s) returns an array of len (%d), should be 2", scenePath, len(casts))
+	}
+}
 
 func TestGetScenePath(t *testing.T) {
 	path, err := filepath.Abs("../testdata/scene_2/read/read_1.txt")
