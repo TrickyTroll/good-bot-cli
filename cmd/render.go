@@ -427,15 +427,17 @@ func getSceneCasts(scenePath string) []string {
 //
 // Returns an absolute path.
 func getScenePath(itemPath string) (string, error) {
-	// Cheking if file exists.
-	var scenePath string
 
+	// scenePath initially not really the scene's path
+	scenePath := itemPath
+
+	// Cheking if file exists.
 	_, err := os.Stat(itemPath)
 	if err != nil {
 		return "", err
 	}
-	base := filepath.Base(itemPath)
 
+	base := filepath.Base(itemPath)
 	// Go back until the base of the path  contains "scene_"
 	for {
 		if strings.Contains(base, "scene_") {
@@ -443,6 +445,10 @@ func getScenePath(itemPath string) (string, error) {
 		}
 		scenePath = filepath.Dir(scenePath)
 		base = filepath.Base(scenePath)
+		if strings.HasSuffix(scenePath, string(os.PathSeparator)) {
+			err := fmt.Errorf("%s does not seem to be saved in a Good Bot project", itemPath)
+			return "", err
+		}
 	}
 	// The scene path should be the parent dir
 	// of the type of media.
