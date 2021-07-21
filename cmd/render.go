@@ -401,7 +401,7 @@ func getRecsPaths(projectPath string) []string {
 // the provided scene path. For each file contained in the
 // recordings path of a scene, this function checks if the file's
 // extension is ".cast". Each match is appended to an array of
-// paths which is then returned..
+// paths which is then returned.
 func getSceneCasts(scenePath string) []string {
 	var sceneRecordings []string
 	castsPath := filepath.Join(scenePath, recordingsPath)
