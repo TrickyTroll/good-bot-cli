@@ -81,6 +81,18 @@ func init() {
 const recordingsPath string = "/asciicasts/"
 const renderPath string = "/gifs/"
 
+// Settings that should be found in an asciicast v2 file.
+type asciicastSettings struct {
+	Version int `json:"version"`
+	Width   int `json:"width"`
+	Height  int `json:"height"`
+	Time    int `json:"timestamp"`
+	Env     struct {
+		Shell bool   `json:"SHELL"`
+		Term  string `json:"TERM"`
+	}
+}
+
 // renderAllRecordings uses renderRecording on each Asciinema recording from
 // a project. It uses getRecsPaths to get an array of paths towards each
 // asciicast. This function also pulls Asciicast2gif's Docker image, and
@@ -352,27 +364,12 @@ func cropRec(recPath string) error {
 
 	lines := strings.Split(string(file), "\n")
 	params := strings.Split(lines[1], ",")
-	newWidth := replaceParam(params[1], "24")
-	newHeight := replaceParam(params[2], "80")
-
-	params[1] = newWidth
-	params[2] = newHeight
 
 	lines[0] = strings.Join(params, ",")
 
 	ioutil.WriteFile(recPath, []byte(strings.Join(lines, "\n")), 0644)
 
 	return nil
-}
-
-// replaceParam replaces a value for a certain parameter from
-// an Asciinema recording file. It returns the provided string
-// with the new parameter instead  of the old one.
-func replaceParam(paramString string, newParam string) string {
-	editing := strings.Split(paramString, ":")
-	editing[1] = " " + newParam
-
-	return strings.Join(editing, ":")
 }
 
 // getRecsPaths fetches every recording for a project.
