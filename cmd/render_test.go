@@ -13,7 +13,7 @@ import (
 // TestGetRecPaths checks the amount of asciicasts found in a project
 // by getRecsPaths. The project used for those tests contains dummy
 // files in one of the scene's asciicast directory.
-func TestGetRecPaths(t *testing.T) {
+func TestGetRecsPaths(t *testing.T) {
 
 	projectPath, err := filepath.Abs("../testdata")
 
