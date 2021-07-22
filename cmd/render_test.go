@@ -70,7 +70,7 @@ func TestGetSceneCastsContents(t *testing.T) {
 	for _, file := range casts {
 		_, err := getAsciicastConfig(file)
 		if err != nil {
-			t.Errorf("parsing json from asciicast %s returned an error:\n%s\n", file.Name(), err)
+			t.Errorf("parsing json from asciicast %s returned an error:\n%s\n", file, err)
 		}
 	}
 }
