@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"bufio"
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -15,6 +17,60 @@ import (
 // asciicast v2 file.
 func TestGetSceneCastsContents(t *testing.T) {
 
+	// Settings that should be found in an asciicast v2 file.
+	type asciicastSettings struct {
+		Version int `json:"version"`
+		Width   int `json:"width"`
+		Height  int `json:"height"`
+		Time    int `json:"timestamp"`
+		Env     struct {
+			Shell bool   `json:"SHELL"`
+			Term  string `json:"TERM"`
+		}
+	}
+
+	scenePath, err := filepath.Abs("../testdata/scene_1")
+
+	if err != nil {
+		t.Errorf("Error finding testdata: %s", err)
+	}
+
+	allFiles, err := ioutil.ReadDir(filepath.Join(scenePath, recordingsPath))
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	want := 2
+
+	if len(allFiles) != want {
+		t.Errorf("testdata in %s should contain %d asciicasts", scenePath, want)
+	}
+
+	casts := getSceneCasts(scenePath)
+
+	// Checking contents of each file.
+	for _, file := range casts {
+		file, err := os.Open(file)
+		if err != nil {
+			t.Errorf("os.Open test error:\n%s", err)
+		}
+		defer file.Close()
+
+		var linesBytes [][]byte
+
+		// Only getting first line of file
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			linesBytes = append(linesBytes, scanner.Bytes())
+		}
+
+		var settings asciicastSettings
+		err = json.Unmarshal(linesBytes[0], &settings)
+		if err != nil {
+			t.Errorf("parsing json from asciicast %s returned an error:\n%s\n", file.Name(), err)
+		}
+	}
 }
 
 // TestGetSceneCastsReturns checks the returned values from
