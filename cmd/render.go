@@ -361,6 +361,14 @@ func cropRec(recPath string) error {
 	return nil
 }
 
+// getAsciicastConfig gets an asciicast's configuration information.
+// The settings are unmarshalled from the asciicast's first line.
+//
+// The settings are unmarshalled in a struct type defined as
+// asciicastSettings.
+//
+// An error is returned if there was an error returned by os.Open or
+// json.Unmarshal.
 func getAsciicastConfig(recPath string) (*asciicastSettings, error) {
 
 	file, err := os.Open(recPath)
