@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -68,7 +69,22 @@ func TestGetSceneCastsContents(t *testing.T) {
 
 	// Checking contents of each file.
 	for _, file := range casts {
-		_, err := getAsciicastConfig(file)
+		var fileLines [][]byte
+
+		openFile, err := os.Open(file)
+
+		if err != nil {
+			t.Errorf("test: error reading file %s.\n%s", file, err)
+		}
+
+		scanner := bufio.NewScanner(openFile)
+
+		for scanner.Scan() {
+			fileLines = append(fileLines, scanner.Bytes())
+		}
+
+		_, err = getAsciicastConfig(fileLines)
+
 		if err != nil {
 			t.Errorf("parsing json from asciicast %s returned an error:\n%s\n", file, err)
 		}
