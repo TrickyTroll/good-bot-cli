@@ -10,6 +10,28 @@ import (
 	"testing"
 )
 
+// TestGetRecPaths checks the amount of asciicasts found in a project
+// by getRecsPaths. The project used for those tests contains dummy
+// files in one of the scene's asciicast directory.
+func TestGetRecPaths(t *testing.T) {
+
+	projectPath, err := filepath.Abs("../testdata")
+
+	if err != nil {
+		t.Errorf("Error finding testdata: %s", err)
+	}
+
+	recPaths := getRecsPaths(projectPath)
+
+	// There should be 5 asciicasts in the project
+	want := 5
+	got := len(recPaths)
+
+	if got != want {
+		t.Errorf("getRecsPaths(%s) returns an array of length %d, want %d", projectPath, got, want)
+	}
+}
+
 // TestGetSceneCastsContents makes sure that the contents of each
 // file that corresponds to a path returned by getSceneCasts seems
 // to be a valid asciicast. This test is made by checking if the
