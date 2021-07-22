@@ -383,6 +383,15 @@ func cropRec(recPath string) error {
 
 	newFirstLine, err := json.Marshal(config)
 
+	linesBytes[0] = newFirstLine
+
+	writer := bufio.NewWriter(file)
+
+	for _, line := range linesBytes {
+		writer.Write(line)
+	}
+
+	return nil
 }
 
 // getAsciicastConfig gets an asciicast's configuration information.
