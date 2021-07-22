@@ -1,14 +1,21 @@
 package cmd
 
 import (
-	"bufio"
-	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+// TestReplaceParams tests the returned value by replaceParam.
+// The params are unmarshalled and tested before and after passing
+// through replaceParam.
+//
+// This function uses data from the croptests directory in testdata.
+func TestReplaceParams(t *testing.T) {
+
+}
 
 // TestGetRecPaths checks the amount of asciicasts found in a project
 // by getRecsPaths. The project used for those tests contains dummy
@@ -39,18 +46,6 @@ func TestGetRecsPaths(t *testing.T) {
 // asciicast v2 file.
 func TestGetSceneCastsContents(t *testing.T) {
 
-	// Settings that should be found in an asciicast v2 file.
-	type asciicastSettings struct {
-		Version int `json:"version"`
-		Width   int `json:"width"`
-		Height  int `json:"height"`
-		Time    int `json:"timestamp"`
-		Env     struct {
-			Shell bool   `json:"SHELL"`
-			Term  string `json:"TERM"`
-		}
-	}
-
 	scenePath, err := filepath.Abs("../testdata/scene_1")
 
 	if err != nil {
@@ -73,22 +68,7 @@ func TestGetSceneCastsContents(t *testing.T) {
 
 	// Checking contents of each file.
 	for _, file := range casts {
-		file, err := os.Open(file)
-		if err != nil {
-			t.Errorf("os.Open test error:\n%s", err)
-		}
-		defer file.Close()
-
-		var linesBytes [][]byte
-
-		// Only getting first line of file
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			linesBytes = append(linesBytes, scanner.Bytes())
-		}
-
-		var settings asciicastSettings
-		err = json.Unmarshal(linesBytes[0], &settings)
+		_, err := getAsciicastConfig(file)
 		if err != nil {
 			t.Errorf("parsing json from asciicast %s returned an error:\n%s\n", file.Name(), err)
 		}

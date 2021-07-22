@@ -18,6 +18,7 @@ package cmd
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -356,20 +357,35 @@ func renderVideo(projectPath string) string {
 // format. The "cropping" is done by changing the width and height
 // parameters from the asciicast's json recording file.
 func cropRec(recPath string) error {
-	file, err := ioutil.ReadFile(recPath)
-
-	if err != nil {
-		return err
-	}
-
-	lines := strings.Split(string(file), "\n")
-	params := strings.Split(lines[1], ",")
-
-	lines[0] = strings.Join(params, ",")
-
-	ioutil.WriteFile(recPath, []byte(strings.Join(lines, "\n")), 0644)
 
 	return nil
+}
+
+func getAsciicastConfig(recPath string) (*asciicastSettings, error) {
+
+	file, err := os.Open(recPath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var linesBytes [][]byte
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		linesBytes = append(linesBytes, scanner.Bytes())
+	}
+
+	var settings asciicastSettings
+
+	err = json.Unmarshal(linesBytes[0], &settings)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &settings, err
 }
 
 // getRecsPaths fetches every recording for a project.
