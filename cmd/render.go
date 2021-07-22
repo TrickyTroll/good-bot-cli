@@ -358,7 +358,33 @@ func renderVideo(projectPath string) string {
 // parameters from the asciicast's json recording file.
 func cropRec(recPath string) error {
 
-	return nil
+	config, err := getAsciicastConfig(recPath)
+
+	if err != nil {
+		return err
+	}
+
+	config.Height = 80
+	config.Width = 24
+
+	newFirstLine, err := json.Marshal(config)
+
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Open(recPath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		linesBytes = append(linesBytes, scanner.Bytes())
+	}
+
 }
 
 // getAsciicastConfig gets an asciicast's configuration information.
@@ -369,25 +395,13 @@ func cropRec(recPath string) error {
 //
 // An error is returned if there was an error returned by os.Open or
 // json.Unmarshal.
-func getAsciicastConfig(recPath string) (*asciicastSettings, error) {
-
-	file, err := os.Open(recPath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+func getAsciicastConfig(fileLines []byte) (*asciicastSettings, error) {
 
 	var linesBytes [][]byte
 
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		linesBytes = append(linesBytes, scanner.Bytes())
-	}
-
 	var settings asciicastSettings
 
-	err = json.Unmarshal(linesBytes[0], &settings)
+	err := json.Unmarshal(linesBytes[0], &settings)
 
 	if err != nil {
 		return nil, err
