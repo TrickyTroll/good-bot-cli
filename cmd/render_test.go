@@ -203,6 +203,9 @@ func TestGetSceneCastsWithExtra(t *testing.T) {
 	}
 }
 
+// TestGetScenePath is checks wether or not the getScenePath function
+// returns the proper scene for a file. The file used for this test
+// is read_1.txt from testdata/scene_2/read/read_1.txt
 func TestGetScenePath(t *testing.T) {
 	path, err := filepath.Abs("../testdata/scene_2/read/read_1.txt")
 	if err != nil {
