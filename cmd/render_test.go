@@ -225,6 +225,8 @@ func TestGetScenePath(t *testing.T) {
 	}
 }
 
+// TestGetScenePathErr tests getScenePath on a file that does not
+// exist to make sure that it returns an error.
 func TestGetScenePathErr(t *testing.T) {
 	falsePath := "./foobar"
 	_, err := os.Stat(falsePath)
