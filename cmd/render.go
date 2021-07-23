@@ -383,6 +383,10 @@ func cropRec(recPath string) error {
 
 	newFirstLine, err := json.Marshal(config)
 
+	if err != nil {
+		return err
+	}
+
 	linesBytes[0] = newFirstLine
 
 	writer := bufio.NewWriter(file)
