@@ -91,6 +91,46 @@ func TestGetSceneCastsContents(t *testing.T) {
 	}
 }
 
+func TestGetAsciicastConfig(t *testing.T) {
+
+	recPath, err := filepath.Abs("../testdata/croptests/commands_1.cast")
+
+	if err != nil {
+		t.Errorf("Error finding file: %s", err)
+	}
+
+	var fileLines [][]byte
+
+	openFile, err := os.Open(recPath)
+
+	if err != nil {
+		t.Errorf("test: error reading file %s.\n%s", file, err)
+	}
+
+	scanner := bufio.NewScanner(openFile)
+
+	for scanner.Scan() {
+		fileLines = append(fileLines, scanner.Bytes())
+	}
+
+	recSettings, err := getAsciicastConfig(fileLines)
+
+	// Checking each param in the config. Th json looks
+	// like this:
+	// {
+	// 	"version": 2,
+	// 	"width: 219,
+	// 	"height": 8,
+	// 	"timestamp": 1625778960,
+	// 	"env": {"SHELL": null, "TERM": "linux"}
+	// }
+	wantSettings := &asciicastSettings{2, 219, 8, 1625778960, {"linux"}}
+
+	if recSettings.Version != 2 {
+		t.Errorf("getAsciicastConfig on file %s found", recPath)
+	}
+}
+
 // TestGetSceneCastsReturns checks the returned values from
 // getSceneCasts. Each value should be a path towards an
 // asciicast file. Each path is tested by making sure that
@@ -203,7 +243,7 @@ func TestGetSceneCastsWithExtra(t *testing.T) {
 	}
 }
 
-// TestGetScenePath is checks wether or not the getScenePath function
+// TestGetScenePath is checks whether or not the getScenePath function
 // returns the proper scene for a file. The file used for this test
 // is read_1.txt from testdata/scene_2/read/read_1.txt
 func TestGetScenePath(t *testing.T) {
