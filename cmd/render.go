@@ -84,7 +84,7 @@ const renderPath string = "/gifs/"
 
 // Settings that should be found in an asciicast v2 file.
 type asciicastEnv struct {
-	Shell bool   `json:"SHELL"`
+	Shell string   `json:"SHELL"`
 	Term  string `json:"TERM"`
 }
 type asciicastSettings struct {
