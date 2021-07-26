@@ -9,13 +9,62 @@ import (
 	"testing"
 )
 
-// TestReplaceParams tests the returned value by replaceParam.
-// The params are unmarshalled and tested before and after passing
-// through replaceParam.
-//
-// This function uses data from the croptests directory in testdata.
-func TestReplaceParams(t *testing.T) {
+func TestCropRec(t *testing.T) {
+	// Creating copy of test file
+	castPath, err := filepath.Abs("../testdata/croptests/commands_1.cast")
 
+	if err != nil {
+		t.Errorf("Test error: Error finding testdata: %s\n", err)
+	}
+
+	newCastPath, err := filepath.Abs(filepath.Join(filepath.Dir(castPath), "castCopy.yaml"))
+
+	contents, err := os.ReadFile(castPath)
+
+	if err != nil {
+		t.Errorf("Test error: could not read file %s.\n%s", castPath, err)
+	}
+
+	err = ioutil.WriteFile(newCastPath, contents, 0644)
+	defer os.Remove(newCastPath)
+
+	if err != nil {
+		t.Errorf("Test  error: could not write to file.\n%s", err)
+	}
+
+	// Cropping the new test file.
+	cropRec(newCastPath)
+
+	// Getting lines from new file
+	file, err := os.Open(newCastPath)
+	if err != nil {
+		t.Errorf("Test error: could not open file %s\n%s", newCastPath, err)
+	}
+	defer file.Close()
+
+	var fileLines [][]byte
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		fileLines = append(fileLines, scanner.Bytes())
+	}
+
+	info, err := getAsciicastConfig(fileLines)
+
+	if err != nil {
+		t.Errorf("getAsciicastConfig running on %s and got error:\n%s", newCastPath, err)
+	}
+
+	if info.Height != 80 {
+		t.Errorf("cropRec error: cropped file %s has height %d, want %d", newCastPath, info.Height, 80)
+	}
+
+	if info.Width != 24 {
+		t.Errorf("cropRec error: cropped file %s has width %d, want %d", newCastPath, info.Width, 24)
+	}
+
+	// Files are closed with defer statements.
 }
 
 // TestGetRecPaths checks the amount of asciicasts found in a project
