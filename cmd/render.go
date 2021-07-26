@@ -379,8 +379,8 @@ func cropRec(recPath string) error {
 		return err
 	}
 
-	config.Height = 80
-	config.Width = 24
+	config.Height = 24
+	config.Width = 80
 
 	newFirstLine, err := json.Marshal(config)
 
