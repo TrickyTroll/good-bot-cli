@@ -104,7 +104,7 @@ func TestGetAsciicastConfig(t *testing.T) {
 	openFile, err := os.Open(recPath)
 
 	if err != nil {
-		t.Errorf("test: error reading file %s.\n%s", file, err)
+		t.Errorf("test: error reading file %s.\n%s", recPath, err)
 	}
 
 	scanner := bufio.NewScanner(openFile)
@@ -127,7 +127,7 @@ func TestGetAsciicastConfig(t *testing.T) {
 	wantSettings := &asciicastSettings{2, 219, 8, 1625778960, &asciicastEnv{"", "linux"}}
 
 	if recSettings.Version != wantSettings.Version {
-		t.Errorf("getAsciicastConfig on file %s found version %d, want %s.", recPath, recSettings.Version, wantSettings.Version)
+		t.Errorf("getAsciicastConfig on file %s found version %d, want %d.", recPath, recSettings.Version, wantSettings.Version)
 	}
 
 	if recSettings.Width != wantSettings.Width {
