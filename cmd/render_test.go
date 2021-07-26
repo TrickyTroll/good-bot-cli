@@ -9,6 +9,9 @@ import (
 	"testing"
 )
 
+// TestCropRec creates a copy of an existing recording with wrong
+// height and width to test the cropRec function. It checks wether
+// or not the cropped recording is in the 24x80 format.
 func TestCropRec(t *testing.T) {
 	// Creating copy of test file
 	castPath, err := filepath.Abs("../testdata/croptests/commands_1.cast")
@@ -56,12 +59,12 @@ func TestCropRec(t *testing.T) {
 		t.Errorf("getAsciicastConfig running on %s and got error:\n%s", newCastPath, err)
 	}
 
-	if info.Height != 80 {
-		t.Errorf("cropRec error: cropped file %s has height %d, want %d", newCastPath, info.Height, 80)
+	if info.Height != 24 {
+		t.Errorf("cropRec error: cropped file %s has height %d, want %d", newCastPath, info.Height, 24)
 	}
 
-	if info.Width != 24 {
-		t.Errorf("cropRec error: cropped file %s has width %d, want %d", newCastPath, info.Width, 24)
+	if info.Width != 80 {
+		t.Errorf("cropRec error: cropped file %s has width %d, want %d", newCastPath, info.Width, 80)
 	}
 
 	// Files are closed with defer statements.
