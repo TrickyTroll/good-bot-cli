@@ -91,6 +91,9 @@ func TestGetSceneCastsContents(t *testing.T) {
 	}
 }
 
+// TestGetAsciicastConfig makes sure that the configuration returned by
+// getAsciicastConfig contains the right parameters. The asciicast used
+// for this test is commands_1.cast in the testdata/croptests.
 func TestGetAsciicastConfig(t *testing.T) {
 
 	recPath, err := filepath.Abs("../testdata/croptests/commands_1.cast")
