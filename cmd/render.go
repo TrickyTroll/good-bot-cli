@@ -83,15 +83,16 @@ const recordingsPath string = "/asciicasts/"
 const renderPath string = "/gifs/"
 
 // Settings that should be found in an asciicast v2 file.
+type asciicastEnv struct {
+	Shell bool   `json:"SHELL"`
+	Term  string `json:"TERM"`
+}
 type asciicastSettings struct {
 	Version int `json:"version"`
 	Width   int `json:"width"`
 	Height  int `json:"height"`
 	Time    int `json:"timestamp"`
-	Env     struct {
-		Shell bool   `json:"SHELL"`
-		Term  string `json:"TERM"`
-	}
+	Env		*asciicastEnv `json:"env"`
 }
 
 // renderAllRecordings uses renderRecording on each Asciinema recording from
