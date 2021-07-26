@@ -124,10 +124,57 @@ func TestGetAsciicastConfig(t *testing.T) {
 	// 	"timestamp": 1625778960,
 	// 	"env": {"SHELL": null, "TERM": "linux"}
 	// }
-	wantSettings := &asciicastSettings{2, 219, 8, 1625778960, {"linux"}}
+	wantSettings := &asciicastSettings{2, 219, 8, 1625778960, &asciicastEnv{"", "linux"}}
 
-	if recSettings.Version != 2 {
-		t.Errorf("getAsciicastConfig on file %s found", recPath)
+	if recSettings.Version != wantSettings.Version {
+		t.Errorf("getAsciicastConfig on file %s found version %d, want %s.", recPath, recSettings.Version, wantSettings.Version)
+	}
+
+	if recSettings.Width != wantSettings.Width {
+		t.Errorf("getAsciicastConfig on file %s found width of %d, want %d.", recPath, recSettings.Width, wantSettings.Width)
+	}
+
+	if recSettings.Height != wantSettings.Height {
+		t.Errorf("getAsciicastConfig on file %s found height of %d, want %d.", recPath, recSettings.Height, wantSettings.Height)
+	}
+
+	if recSettings.Time != wantSettings.Time {
+		t.Errorf("getAsciicastConfig on file %s found timestamp of %d, want %d.", recPath, recSettings.Time, wantSettings.Time)
+	}
+
+	if recSettings.Env.Shell != wantSettings.Env.Shell {
+		// null is clearer when printed than an empty string.
+		var got string
+		var want string
+
+		if recSettings.Env.Shell == "" {
+			got = "null"
+		} else {
+			got = recSettings.Env.Shell
+		}
+		if wantSettings.Env.Shell == "" {
+			want = "null"
+		} else {
+			want = wantSettings.Env.Shell
+		}
+		t.Errorf("getAsciicastConfig on file %s found shell %s, want %s.", recPath, got, want)
+	}
+	if recSettings.Env.Term != wantSettings.Env.Term {
+		// null is clearer when printed than an empty string.
+		var got string
+		var want string
+
+		if recSettings.Env.Term == "" {
+			got = "null"
+		} else {
+			got = recSettings.Env.Term
+		}
+		if wantSettings.Env.Term == "" {
+			want = "null"
+		} else {
+			want = wantSettings.Env.Term
+		}
+		t.Errorf("getAsciicastConfig on file %s found term %s, want %s.", recPath, got, want)
 	}
 }
 
