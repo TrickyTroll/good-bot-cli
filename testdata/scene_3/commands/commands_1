@@ -1,0 +1,8 @@
+commands:
+- mkdir newdir
+- echo "Contents for my new file" > newdir/newfile.txt
+- cat newdir/newfile.txt
+expect:
+- prompt
+- prompt
+- prompt

@@ -18,6 +18,7 @@ package cmd
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -85,6 +86,19 @@ func init() {
 const recordingsPath string = "/asciicasts/"
 const renderPath string = "/gifs/"
 
+// Settings that should be found in an asciicast v2 file.
+type asciicastEnv struct {
+	Shell string   `json:"SHELL"`
+	Term  string `json:"TERM"`
+}
+type asciicastSettings struct {
+	Version int `json:"version"`
+	Width   int `json:"width"`
+	Height  int `json:"height"`
+	Time    int `json:"timestamp"`
+	Env		*asciicastEnv `json:"env"`
+}
+
 // renderAllRecordings uses renderRecording on each Asciinema recording from
 // a project. It uses getRecsPaths to get an array of paths towards each
 // asciicast. This function also pulls Asciicast2gif's Docker image, and
@@ -128,7 +142,12 @@ func renderRecording(asciicastPath string, cli *client.Client, ctx context.Conte
 
 	fileName := strings.TrimSuffix(stat.Name(), filepath.Ext(stat.Name()))
 
-	scenePath := getScenePath(asciicastPath)
+	scenePath, err := getScenePath(asciicastPath)
+
+	if err != nil {
+		log.Printf("Could not render file: %s\n%s", asciicastPath, err)
+		return
+	}
 
 	outputPath := filepath.Join(scenePath, renderPath, fileName+".gif")
 
@@ -343,35 +362,90 @@ func renderVideo(projectPath string) string {
 // format. The "cropping" is done by changing the width and height
 // parameters from the asciicast's json recording file.
 func cropRec(recPath string) error {
-	file, err := ioutil.ReadFile(recPath)
+
+	var linesBytes [][]byte
+
+	file, err := os.Open(recPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		linesBytes = append(linesBytes, scanner.Bytes())
+	}
+
+	config, err := getAsciicastConfig(linesBytes)
 
 	if err != nil {
 		return err
 	}
 
-	lines := strings.Split(string(file), "\n")
-	params := strings.Split(lines[1], ",")
-	newWidth := replaceParam(params[1], "24")
-	newHeight := replaceParam(params[2], "80")
+	config.Height = 24
+	config.Width = 80
 
-	params[1] = newWidth
-	params[2] = newHeight
+	newFirstLine, err := json.Marshal(config)
 
-	lines[0] = strings.Join(params, ",")
+	if err != nil {
+		return err
+	}
 
-	ioutil.WriteFile(recPath, []byte(strings.Join(lines, "\n")), 0644)
+	linesBytes[0] = newFirstLine
+
+	// moving old file as backup
+	backup := recPath + ".backup"
+	os.Rename(recPath, backup)
+	defer os.Remove(backup)
+
+	NewFile, err := os.Create(recPath)
+	defer file.Close()
+
+	if err != nil {
+		os.Rename(backup, recPath)
+		return err
+	}
+
+	writer := bufio.NewWriter(NewFile)
+
+	for _, line := range(linesBytes) {
+		_, err := fmt.Fprint(writer, string(line) + "\n")
+		if err != nil {
+			os.Rename(backup, recPath)
+			return err
+		}
+	}
+	writer.Flush()
 
 	return nil
 }
 
-// replaceParam replaces a value for a certain parameter from
-// an Asciinema recording file. It returns the provided string
-// with the new parameter instead  of the old one.
-func replaceParam(paramString string, newParam string) string {
-	editing := strings.Split(paramString, ":")
-	editing[1] = " " + newParam
+// getAsciicastConfig gets an asciicast's configuration information.
+// The settings are unmarshalled from the asciicast's first line.
+//
+// The settings are unmarshalled in a struct type defined as
+// asciicastSettings.
+//
+// An error is returned if there was an error returned by os.Open or
+// json.Unmarshal.
+func getAsciicastConfig(fileLines [][]byte) (*asciicastSettings, error) {
 
-	return strings.Join(editing, ":")
+	// Check if fileLines is empty
+	if len(fileLines) == 0 {
+		err := errors.New("getAsciicastConfig: no lines provided")
+		return nil, err
+	}
+
+	var settings asciicastSettings
+
+	err := json.Unmarshal(fileLines[0], &settings)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &settings, err
 }
 
 // getRecsPaths fetches every recording for a project.
@@ -400,7 +474,7 @@ func getRecsPaths(projectPath string) []string {
 // the provided scene path. For each file contained in the
 // recordings path of a scene, this function checks if the file's
 // extension is ".cast". Each match is appended to an array of
-// paths which is then returned..
+// paths which is then returned.
 func getSceneCasts(scenePath string) []string {
 	var sceneRecordings []string
 	castsPath := filepath.Join(scenePath, recordingsPath)
@@ -421,11 +495,41 @@ func getSceneCasts(scenePath string) []string {
 
 // getScenePath searches for the name of the scene where the
 // provided recording path is saved. It uses the Dir method
-// from the filepath library twice on the provided recording
-// path.
-func getScenePath(recPath string) string {
-	typePath := filepath.Dir(recPath)
+// from the filepath library until the base of the path contains
+// "scene_".
+//
+// Returns an absolute path.
+func getScenePath(itemPath string) (string, error) {
+
+	// scenePath initially not really the scene's path
+	scenePath := itemPath
+
+	// Cheking if file exists.
+	_, err := os.Stat(itemPath)
+	if err != nil {
+		return "", err
+	}
+
+	base := filepath.Base(itemPath)
+	// Go back until the base of the path  contains "scene_"
+	for {
+		if strings.Contains(base, "scene_") {
+			break
+		}
+		scenePath = filepath.Dir(scenePath)
+		base = filepath.Base(scenePath)
+		if strings.HasSuffix(scenePath, string(os.PathSeparator)) {
+			err := fmt.Errorf("%s does not seem to be saved in a Good Bot project", itemPath)
+			return "", err
+		}
+	}
 	// The scene path should be the parent dir
 	// of the type of media.
-	return filepath.Dir(typePath)
+	abs, err := filepath.Abs(scenePath)
+
+	if err != nil {
+		return "", err
+	}
+
+	return abs, nil
 }

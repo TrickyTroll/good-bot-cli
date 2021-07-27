@@ -93,7 +93,7 @@ func initConfig() {
 	}
 }
 
-// validatePath checks whether or not a path is valid. The check is done using
+// validatePath checks whether or not a path exists. The check is done using
 // Stat on the path. If there is no error using Stat, validatePath returns
 // true, else it returns false.
 func validatePath(path string) bool {
