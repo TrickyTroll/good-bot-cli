@@ -419,6 +419,11 @@ func cropRec(recPath string) error {
 // json.Unmarshal.
 func getAsciicastConfig(fileLines [][]byte) (*asciicastSettings, error) {
 
+	// Check if fileLines is empty
+	if len(fileLines) == 0 {
+		err := errors.New("getAsciicastConfig: no lines provided")
+	}
+
 	var settings asciicastSettings
 
 	err := json.Unmarshal(fileLines[0], &settings)
