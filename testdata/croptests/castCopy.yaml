@@ -1,4 +1,4 @@
-{"version": 2, "width": 219, "height": 8, "timestamp": 1625778960, "env": {"SHELL": null, "TERM": "linux"}}
+{"version":2,"width":80,"height":24,"timestamp":1625778960,"env":{"SHELL":"","TERM":"linux"}}
 [0.23265, "o", "root@ebead59c7311:/app# "]
 [0.41537, "o", "e"]
 [0.609834, "o", "c"]
