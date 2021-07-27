@@ -422,6 +422,7 @@ func getAsciicastConfig(fileLines [][]byte) (*asciicastSettings, error) {
 	// Check if fileLines is empty
 	if len(fileLines) == 0 {
 		err := errors.New("getAsciicastConfig: no lines provided")
+		return nil, err
 	}
 
 	var settings asciicastSettings
