@@ -129,6 +129,9 @@ func renderAllRecordings(projectPath string) {
 // Docker image, so it needs the client and context passed as arguments.
 // Asciicast2gif is used with the "-S1" flag to reduce the gif's
 // resolution.
+//
+// This function returns the path towards the rendered recoring. If
+// no render is produced, an empty string is returned.
 func renderRecording(asciicastPath string, cli *client.Client, ctx context.Context) string {
 
 	stat, err := os.Stat(asciicastPath)
