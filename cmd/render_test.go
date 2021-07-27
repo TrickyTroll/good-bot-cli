@@ -29,7 +29,7 @@ func TestCropRec(t *testing.T) {
 	}
 
 	err = ioutil.WriteFile(newCastPath, contents, 0644)
-	//	defer os.Remove(newCastPath)
+	defer os.Remove(newCastPath)
 
 	if err != nil {
 		t.Errorf("Test  error: could not write to file.\n%s", err)
