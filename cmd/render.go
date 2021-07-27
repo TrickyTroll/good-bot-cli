@@ -390,7 +390,17 @@ func cropRec(recPath string) error {
 
 	linesBytes[0] = newFirstLine
 
-	writer := bufio.NewWriter(file)
+	// moving old file as backup
+
+	os.Rename(recPath, recPath + ".backup" )
+
+	newFile, err := os.Create(recPath)
+
+	if err != nil {
+		return err
+	}
+
+	writer := bufio.NewWriter(newFile)
 
 	for _, line := range linesBytes {
 		writer.Write(line)
