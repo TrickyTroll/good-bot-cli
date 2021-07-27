@@ -129,7 +129,7 @@ func renderAllRecordings(projectPath string) {
 // Docker image, so it needs the client and context passed as arguments.
 // Asciicast2gif is used with the "-S1" flag to reduce the gif's
 // resolution.
-func renderRecording(asciicastPath string, cli *client.Client, ctx context.Context) {
+func renderRecording(asciicastPath string, cli *client.Client, ctx context.Context) string {
 
 	stat, err := os.Stat(asciicastPath)
 
@@ -146,7 +146,7 @@ func renderRecording(asciicastPath string, cli *client.Client, ctx context.Conte
 
 	if err != nil {
 		log.Printf("Could not render file: %s\n%s", asciicastPath, err)
-		return
+		return ""
 	}
 
 	outputPath := filepath.Join(scenePath, renderPath, fileName+".gif")
@@ -233,6 +233,8 @@ func renderRecording(asciicastPath string, cli *client.Client, ctx context.Conte
 	}
 
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+
+	return outputPath
 }
 
 // renderVideo uses Good Bot's Docker image to render a previously
