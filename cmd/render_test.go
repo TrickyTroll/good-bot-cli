@@ -47,6 +47,9 @@ func TestRenderRecording(t *testing.T) {
 	if err != nil {
 		t.Errorf("renderRecording on file %s did not produce a valid outpuput.\nCalling os.Stat on the file created by renderRecording returned error:\n%s", asciicastPath, err)
 	}
+
+	// Cleaning up
+	os.Remove(render)
 }
 
 // TestCropRec creates a copy of an existing recording with wrong
