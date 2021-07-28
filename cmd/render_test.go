@@ -157,7 +157,11 @@ func TestGetSceneCastsContents(t *testing.T) {
 		t.Errorf("testdata in %s should contain %d asciicasts", scenePath, want)
 	}
 
-	casts := getSceneCasts(scenePath)
+	casts, err := getSceneCasts(scenePath)
+
+	if err != nil {
+		t.Errorf("getSceneCasts(%s) returned an error:\n%s", scenePath, err)
+	}
 
 	// Checking contents of each file.
 	for _, file := range casts {
@@ -296,7 +300,11 @@ func TestGetSceneCastsReturns(t *testing.T) {
 		t.Errorf("testdata in %s should contain %d asciicasts", scenePath, want)
 	}
 
-	casts := getSceneCasts(scenePath)
+	casts, err := getSceneCasts(scenePath)
+
+	if err != nil {
+		t.Errorf("getSceneCasts(%s) returned an error:\n%s", scenePath, err)
+	}
 
 	// Checking each file if it is an asciicast.
 	for _, file := range casts {
@@ -348,7 +356,11 @@ func TestGetSceneCastsOnCasts(t *testing.T) {
 		t.Errorf("testdata in %s should contain %d asciicasts", scenePath, want)
 	}
 
-	casts := getSceneCasts(scenePath)
+	casts, err := getSceneCasts(scenePath)
+
+	if err != nil {
+		t.Errorf("getSceneCasts(%s) returned an error:\n%s", scenePath, err)
+	}
 
 	if len(casts) != want {
 		t.Errorf("getSceneCasts(%s) returns an array of len (%d), should be %d", scenePath, len(casts), want)
@@ -378,7 +390,11 @@ func TestGetSceneCastsWithExtra(t *testing.T) {
 
 	want := 1
 
-	casts := getSceneCasts(scenePath)
+	casts, err := getSceneCasts(scenePath)
+
+	if err != nil {
+		t.Errorf("getSceneCasts(%s) returned an error:\n%s", scenePath, err)
+	}
 
 	if len(casts) != want {
 		t.Errorf("getSceneCasts(%s) returns an array of len (%d), should be %d", scenePath, len(casts), want)
