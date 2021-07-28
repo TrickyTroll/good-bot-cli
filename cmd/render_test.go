@@ -3,11 +3,51 @@ package cmd
 import (
 	"bufio"
 	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"testing"
+	"context"
 )
+
+func TestRenderRecording(t *testing.T) {
+
+	asciicastPath, err := filepath.Abs("../testdata/scene_1/asciicasts/commands_1.cast")
+
+	if err != nil {
+		t.Errorf("Test error: could not find absolute path in TestRenderRecording.\n%s", err)
+	}
+
+	_, err = os.Stat(asciicastPath)
+
+	if err != nil {
+		t.Errorf("Test error: file provided in TestRenderRecording does not seem to be valid.\n%s", err)
+	}
+	ctx := context.Background()
+
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil { // cli fails nothing else will work. Should panic.
+		panic(err)
+	}
+
+	reader, err := cli.ImagePull(ctx, "asciinema/asciicast2gif", types.ImagePullOptions{})
+	if err != nil { // If no reader the rest of the program won't work.
+		panic(err)
+	}
+	io.Copy(os.Stdout, reader) // Print container info to stdout.
+
+	render := renderRecording(asciicastPath, cli, ctx)
+
+	// Checking if file has been properly created.
+	_, err = os.Stat(render)
+
+	if err != nil {
+		t.Errorf("renderRecording on file %s did not produce a valid outpuput.\nCalling os.Stat on the file created by renderRecording returned error:\n%s", asciicastPath, err)
+	}
+}
 
 // TestCropRec creates a copy of an existing recording with wrong
 // height and width to test the cropRec function. It checks wether
