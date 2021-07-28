@@ -460,6 +460,8 @@ func getAsciicastConfig(fileLines [][]byte) (*asciicastSettings, error) {
 // getSceneCasts to get each Asciinema recording from
 // each scene. It returns an array of paths towards
 // every recording saved in the provided project path.
+//
+// Paths returned by this function are absolute.
 func getRecsPaths(projectPath string) []string {
 	var allPaths []string
 	// Each dir is a `scene`.
@@ -473,6 +475,9 @@ func getRecsPaths(projectPath string) []string {
 		scenePath := filepath.Join(projectPath, dir.Name())
 		sceneRecordings, err := getSceneCasts(scenePath)
 		if err != nil {
+			log.Printf("Got error trying to find recordings in scene %s.\n%s", scenePath, err)
+		}
+		if len(sceneRecordings) == 0 {
 			log.Printf("Found no recordings in scene %s\n", scenePath)
 		}
 		allPaths = append(allPaths, sceneRecordings...)
