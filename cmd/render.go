@@ -154,24 +154,26 @@ func renderRecording(asciicastPath string, cli *client.Client, ctx context.Conte
 		return ""
 	}
 
-	outputPath := filepath.Join(scenePath, renderPath, fileName+".gif")
+	outputPath := filepath.Join(".", renderPath, fileName + ".gif")
+	castFromMount := filepath.Join(".", recordingsPath, fileName + ".cast")
 
-	currentWorkingDir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
+	// Making sure that the output directory exists
+	gifsDir := filepath.Join(scenePath, renderPath)
+	if _, err := os.Stat(gifsDir); os.IsNotExist(err) {
+		os.Mkdir(gifsDir, 0777)
 	}
 
 	// Used later for i/o between container and shell
 	inout := make(chan []byte)
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Cmd:   []string{"-S1", asciicastPath, outputPath},
+		Cmd:   []string{"-S1", castFromMount, outputPath},
 		Image: "asciinema/asciicast2gif",
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{ // Mounting the location where the script is written.
 			{
 				Type:   mount.TypeBind,
-				Source: currentWorkingDir, // `getDir()` defined in `root.go`.
+				Source: scenePath, // scenePath is mounted as /data in the container
 				Target: "/data",           // Specified in asciicast2gif's README.
 			},
 		},
@@ -239,7 +241,7 @@ func renderRecording(asciicastPath string, cli *client.Client, ctx context.Conte
 
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 
-	return outputPath
+	return filepath.Join(scenePath, outputPath)
 }
 
 // renderVideo uses Good Bot's Docker image to render a previously
