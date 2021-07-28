@@ -485,6 +485,12 @@ func getRecsPaths(projectPath string) []string {
 // recordings path of a scene, this function checks if the file's
 // extension is ".cast". Each match is appended to an array of
 // paths which is then returned.
+//
+// If there is an error reading the scenePath / recordingsPath
+// directory or while trying to find an asciicast's absolute
+// path, the error is returned.
+//
+// This functions returns absolute paths.
 func getSceneCasts(scenePath string) ([]string, error) {
 	var sceneRecordings []string
 	castsPath := filepath.Join(scenePath, recordingsPath)
