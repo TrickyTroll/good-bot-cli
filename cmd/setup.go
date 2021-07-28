@@ -112,6 +112,14 @@ func runSetupCommand(filePath string, containerPath string) {
 
 	containerScriptPath := containerPath + "/" + scriptName
 
+	writeRoot, err := os.Getwd()
+
+	if err != nil {
+		panic(err)
+	}
+
+	writeLoc := "/users-cwd"
+
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 
 		AttachStdin:  true,
@@ -127,6 +135,11 @@ func runSetupCommand(filePath string, containerPath string) {
 				Type:   mount.TypeBind,
 				Source: getDir(filePath),
 				Target: containerPath,
+			},
+			{
+				Type: mount.TypeBind,
+				Source: writeRoot,
+				Target: writeLoc,
 			},
 		},
 	}, nil, nil, "")
