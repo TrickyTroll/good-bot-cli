@@ -473,7 +473,7 @@ func getRecsPaths(projectPath string) []string {
 		scenePath := filepath.Join(projectPath, dir.Name())
 		sceneRecordings, err := getSceneCasts(scenePath)
 		if err != nil {
-			log.Println(fmt.Sprintf("Found no recordings in scene %s", scenePath))
+			log.Printf("Found no recordings in scene %s\n", scenePath)
 		}
 		allPaths = append(allPaths, sceneRecordings...)
 	}
