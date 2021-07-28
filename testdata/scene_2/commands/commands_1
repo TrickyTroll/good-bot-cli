@@ -1,0 +1,8 @@
+commands:
+- mkdir foobar
+- cd foobar
+- pwd
+expect:
+- prompt
+- prompt
+- prompt

@@ -1,0 +1,4 @@
+commands:
+- echo "This was a short demo of Good Bot."
+expect:
+- prompt

@@ -29,3 +29,6 @@ env/
 
 # MacOS dirs
 .DS_Store
+
+# Notes
+notes/

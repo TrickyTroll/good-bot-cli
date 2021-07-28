@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
 
@@ -49,7 +50,11 @@ command to create the recordings.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		dockerCheck()
 		credentials := copyCredentials()
-		if isDirectory(args[0]) {
+		isDir, err := isDirectory(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		if isDir {
 			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords, &languageSettings{language, languageName})
 			if !noRender {
 				renderAllRecordings(args[0])
@@ -256,15 +261,15 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 // isDirectory checks whether or not a path is a directory. It uses
 // os.Stat to get information on the provided path, and then uses
 // IsDir on the information provided.
-func isDirectory(path string) bool {
+func isDirectory(path string) (bool, error) {
 	// path should be valid since it's been checked by validatePath()
 	info, err := os.Stat(path)
 	if err != nil {
 		// If path is not valid, it means that there is a missing
 		// validatePath() somewhere.
-		panic(err)
+		return false, err
 	}
-	return info.IsDir()
+	return info.IsDir(), nil
 }
 
 // parsePasswords reads a password file and stores its values in an array.
