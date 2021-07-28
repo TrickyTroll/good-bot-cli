@@ -471,7 +471,10 @@ func getRecsPaths(projectPath string) []string {
 	}
 	for _, dir := range dirs {
 		scenePath := filepath.Join(projectPath, dir.Name())
-		sceneRecordings := getSceneCasts(scenePath)
+		sceneRecordings, err := getSceneCasts(scenePath)
+		if err != nil {
+			log.Println(fmt.Sprintf("Found no recordings in scene %s", scenePath))
+		}
 		allPaths = append(allPaths, sceneRecordings...)
 	}
 	return allPaths
@@ -482,23 +485,25 @@ func getRecsPaths(projectPath string) []string {
 // recordings path of a scene, this function checks if the file's
 // extension is ".cast". Each match is appended to an array of
 // paths which is then returned.
-func getSceneCasts(scenePath string) []string {
+func getSceneCasts(scenePath string) ([]string, error) {
 	var sceneRecordings []string
 	castsPath := filepath.Join(scenePath, recordingsPath)
 	recordings, err := ioutil.ReadDir(castsPath)
 	if err != nil {
 		// Probabably means that there are no recordings. No need to Panic.
-		log.Println(fmt.Sprintf("Found no recordings in scene %s", scenePath))
-		return nil
+		return nil, err
 	}
 	for _, file := range recordings {
 		castPath := scenePath + recordingsPath + file.Name()
 		if filepath.Ext(castPath) == ".cast" {
-			// absPath, err := filepath.Abs(castPath)
-			sceneRecordings = append(sceneRecordings, castPath)
+			absPath, err := filepath.Abs(castPath)
+			if err != nil {
+				return nil, fmt.Errorf("Could not get absolute path for file %s", castPath)
+			}
+			sceneRecordings = append(sceneRecordings, absPath)
 		}
 	}
-	return sceneRecordings
+	return sceneRecordings, nil
 }
 
 // getScenePath searches for the name of the scene where the
