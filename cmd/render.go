@@ -136,6 +136,7 @@ func renderRecording(asciicastPath string, cli *client.Client, ctx context.Conte
 
 	stat, err := os.Stat(asciicastPath)
 
+	// TODO: Return error instead
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -145,6 +146,7 @@ func renderRecording(asciicastPath string, cli *client.Client, ctx context.Conte
 
 	fileName := strings.TrimSuffix(stat.Name(), filepath.Ext(stat.Name()))
 
+	// scenePath is an absolute path
 	scenePath, err := getScenePath(asciicastPath)
 
 	if err != nil {
@@ -490,9 +492,10 @@ func getSceneCasts(scenePath string) []string {
 		return nil
 	}
 	for _, file := range recordings {
-		filePath := scenePath + recordingsPath + file.Name()
-		if filepath.Ext(filePath) == ".cast" {
-			sceneRecordings = append(sceneRecordings, filePath)
+		castPath := scenePath + recordingsPath + file.Name()
+		if filepath.Ext(castPath) == ".cast" {
+			// absPath, err := filepath.Abs(castPath)
+			sceneRecordings = append(sceneRecordings, castPath)
 		}
 	}
 	return sceneRecordings
