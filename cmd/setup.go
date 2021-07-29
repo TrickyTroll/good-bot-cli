@@ -30,6 +30,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/spf13/cobra"
+	"github.com/AlecAivazis/survey/v2"
 )
 
 // setupCmd represents the setup command
@@ -127,7 +128,7 @@ func runSetupCommand(filePath string, containerPath string) {
 		AttachStderr: true,
 		Tty:          true,
 		OpenStdin:    true,
-		Cmd:          []string{"setup", containerScriptPath},
+		Cmd:          []string{"setup", "--project-path", , containerScriptPath},
 		Image:        "trickytroll/good-bot:latest",
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{ // Mounting the location where the script is written.
@@ -205,4 +206,27 @@ func runSetupCommand(filePath string, containerPath string) {
 	}
 
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+}
+
+func getProjectPath(containerWriteLoc string) string {
+
+	var savePath string
+
+	q := &survey.Question{
+		Prompt: &survey.Input{
+			Message: "Where do you want to save your project?",
+			Help: "Provide an existing directory on your system. Good Bot will write your\nproject configuration in this directory."
+		},
+		// Making sure that the directory exists
+		Validate: func (val interface{}) error {
+			if str, ok := val.(string); !ok || !validatePath(str) {
+				return errors.New("the path provided does not seem to be valid")
+			}
+			return nil
+		},
+	}
+
+	survey.AskOne(q, &savePath)
+
+	return savePath
 }
