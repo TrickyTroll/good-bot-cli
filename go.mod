@@ -3,6 +3,7 @@ module github.com/TrickyTroll/good-bot-cli
 go 1.16
 
 require (
+	github.com/AlecAivazis/survey/v2 v2.2.15 // indirect
 	github.com/containerd/containerd v1.5.3 // indirect
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
