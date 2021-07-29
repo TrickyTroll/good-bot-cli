@@ -222,10 +222,7 @@ func runSetupCommand(filePath string, containerPath string) {
 // name. The path and the name are then joined to return the path towards
 // where the new project should be written.
 //
-// If an error is encountered while prompting or while trying to find an
-// absolute path, an empty string is returned along with the error.
-//
-// This function returns an absolute path on the host filesystem.
+// An error is returned if it is encountered while prompting.
 func getProjectPath() (*projectSaveInfo, error) {
 
 	var saveInfo *projectSaveInfo
