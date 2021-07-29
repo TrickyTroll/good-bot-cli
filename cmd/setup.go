@@ -76,6 +76,14 @@ func init() {
 	// setupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// projectSaveInfo is used ton store results from getProjectPath. The
+// user is prompted for a save path and a file name, which are stored as
+// "path" and "name", respectively.
+type projectSaveInfo struct {
+		path string
+		name string
+}
+
 // runSetupCommand uses Good Bot's Docker image to set up the project. It pulls
 // the image on each run. The container's output is copied to the shell's
 // stdout and the container is started interactively. This allows the user to
