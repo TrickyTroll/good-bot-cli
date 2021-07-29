@@ -252,12 +252,6 @@ func getProjectPath() (string, error) {
 
 	path := filepath.Join(projectSaveInfo.path, projectSaveInfo.name)
 
-	fullPath, err := filepath.Abs(path)
-
-	if err != nil {
-		return "", err
-	}
-
-	return  fullPath, nil
+	return  path, nil
 }
 
