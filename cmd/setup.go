@@ -218,12 +218,17 @@ func runSetupCommand(filePath string, containerPath string) {
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 }
 
-func getProjectPath() (string, error) {
+// getProjectPath prompts the user for a project save path and a project
+// name. The path and the name are then joined to return the path towards
+// where the new project should be written.
+//
+// If an error is encountered while prompting or while trying to find an
+// absolute path, an empty string is returned along with the error.
+//
+// This function returns an absolute path on the host filesystem.
+func getProjectPath() (*projectSaveInfo, error) {
 
-	projectSaveInfo := struct {
-		path string
-		name string
-	}{}
+	var saveInfo *projectSaveInfo
 
 	var qs = []*survey.Question{
 		{
@@ -252,14 +257,12 @@ func getProjectPath() (string, error) {
 		},
 	}
 
-	err := survey.Ask(qs, &projectSaveInfo)
+	err := survey.Ask(qs, &saveInfo)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	path := filepath.Join(projectSaveInfo.path, projectSaveInfo.name)
-
-	return  path, nil
+	return  saveInfo, nil
 }
 
