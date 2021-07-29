@@ -23,16 +23,14 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
 
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/spf13/cobra"
+	"github.com/AlecAivazis/survey/v2"
 )
 
 // setupCmd represents the setup command
@@ -130,7 +128,7 @@ func runSetupCommand(filePath string, containerPath string) {
 		AttachStderr: true,
 		Tty:          true,
 		OpenStdin:    true,
-		Cmd:          []string{"setup", "--project-path", containerScriptPath},
+		Cmd:          []string{"setup", "--project-path", , containerScriptPath},
 		Image:        "trickytroll/good-bot:latest",
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{ // Mounting the location where the script is written.
@@ -210,46 +208,25 @@ func runSetupCommand(filePath string, containerPath string) {
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 }
 
-func getProjectPath() (string, error) {
+func getProjectPath(containerWriteLoc string) string {
 
-	projectSaveInfo := struct {
-		path string
-		name string
-	}{}
+	var savePath string
 
-	var qs = []*survey.Question{
-		{
-			Name: "path",
-			Prompt: &survey.Input{
-				Message: "Where do you want to save your project?",
-				Help: "Provide an existing directory on your system. Good Bot will write your\nproject configuration in this directory.",
-			},
-			// Making sure that the directory exists
-			Validate: func (val interface{}) error {
-				if str, ok := val.(string); !ok || !validatePath(str) {
-					return errors.New("the path provided does not seem to be valid")
-				}
-				return nil
-			},
+	q := &survey.Question{
+		Prompt: &survey.Input{
+			Message: "Where do you want to save your project?",
+			Help: "Provide an existing directory on your system. Good Bot will write your\nproject configuration in this directory."
 		},
-		{
-			Name: "name",
-			Prompt: &survey.Input{
-				Message: "How do you want to name your project?",
-				Help: "Provide a name for your project. The configuration directory will be saved\nunder the path:[project path]/[project name]",
-			},
-			Validate: func (val interface {}) error {
-				return nil
-			},
+		// Making sure that the directory exists
+		Validate: func (val interface{}) error {
+			if str, ok := val.(string); !ok || !validatePath(str) {
+				return errors.New("the path provided does not seem to be valid")
+			}
+			return nil
 		},
 	}
 
-	err := survey.Ask(qs, &projectSaveInfo)
+	survey.AskOne(q, &savePath)
 
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(projectSaveInfo.path, projectSaveInfo.name), nil
+	return savePath
 }
-
