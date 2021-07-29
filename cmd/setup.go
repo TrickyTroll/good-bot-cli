@@ -23,8 +23,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/docker/docker/api/types"
