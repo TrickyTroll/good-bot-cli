@@ -23,6 +23,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/docker/docker/api/types"
@@ -120,14 +121,19 @@ func runSetupCommand(filePath string, containerPath string) {
 	scriptName := stats.Name()
 
 	containerScriptPath := containerPath + "/" + scriptName
-
-	writeRoot, err := os.Getwd()
+	writeLoc := "/users-cwd"
+	projectPath, err := getProjectPath()
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	writeLoc := "/users-cwd"
+	containerWritePath := filepath.Join(writeLoc, projectPath.name)
+	hostWritePath, err := filepath.Abs(projectPath.path)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 
@@ -136,18 +142,20 @@ func runSetupCommand(filePath string, containerPath string) {
 		AttachStderr: true,
 		Tty:          true,
 		OpenStdin:    true,
-		Cmd:          []string{"setup", "--project-path", containerScriptPath},
+		Cmd:          []string{"setup", "--project-path",containerWritePath, containerScriptPath},
 		Image:        "trickytroll/good-bot:latest",
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{ // Mounting the location where the script is written.
+			// Mounting the location of the config file.
 			{
 				Type:   mount.TypeBind,
 				Source: getDir(filePath),
 				Target: containerPath,
 			},
+			// Mounting the write location of the project directory.
 			{
 				Type: mount.TypeBind,
-				Source: writeRoot,
+				Source: hostWritePath,
 				Target: writeLoc,
 			},
 		},
@@ -258,7 +266,6 @@ func getProjectPath() (*projectSaveInfo, error) {
 		return nil, err
 	}
 
-	// Changement 1
 	return  saveInfo, nil
 }
 
