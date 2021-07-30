@@ -258,6 +258,7 @@ func getProjectPath() (*projectSaveInfo, error) {
 		return nil, err
 	}
 
+	// Changement 1
 	return  saveInfo, nil
 }
 
