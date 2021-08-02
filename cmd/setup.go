@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/docker/docker/api/types"
@@ -79,8 +80,8 @@ func init() {
 // user is prompted for a save path and a file name, which are stored as
 // "path" and "name", respectively.
 type projectSaveInfo struct {
-		path string
-		name string
+		Path string `survey:"path"`
+		Name string `survey:"name"`
 }
 
 // runSetupCommand uses Good Bot's Docker image to set up the project. It pulls
@@ -128,8 +129,8 @@ func runSetupCommand(filePath string, containerPath string) {
 		log.Fatal(err)
 	}
 
-	containerWritePath := filepath.Join(writeLoc, projectPath.name)
-	hostWritePath, err := filepath.Abs(projectPath.path)
+	containerWritePath := filepath.Join(writeLoc, projectPath.Name)
+	hostWritePath, err := filepath.Abs(projectPath.Path)
 
 	if err != nil {
 		log.Fatal(err)
