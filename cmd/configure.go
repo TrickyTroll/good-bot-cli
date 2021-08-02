@@ -144,6 +144,13 @@ func setConfig() {
 	fmt.Printf("Configuration file has been written as %s.\n", viper.ConfigFileUsed())
 }
 
+// promptCredentials promtps the user for paths towards their TTS
+// credentials file and passwords environment file. The results are
+// returned as a credentialsPaths structure.
+//
+// If an error is raised during prompting, the error is returned
+// with a credentialsPaths with nothing defined at the Tts or Pass
+// keys.
 func promptCredentials() (credentialsPaths, error) {
 	var answers credentialsPaths
 
