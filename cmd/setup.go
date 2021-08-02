@@ -232,11 +232,6 @@ func runSetupCommand(filePath string, containerPath string) {
 // An error is returned if it is encountered while prompting.
 func getProjectPath() (projectSaveInfo, error) {
 
-	// answers := struct {
-	// 	Name string `survey:"name"`
-	// 	Path string `survey:"path"`
-	// }{}
-
 	var answers projectSaveInfo
 
 	var qs = []*survey.Question{
