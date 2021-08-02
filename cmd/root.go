@@ -85,6 +85,7 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	} else {
 		if askSetConfig() {
+			fmt.Println("Ok. Setting up your configuration file now.")
 			setConfig()
 		} else {
 			fmt.Println("Ok. Won't be setting a configuration file for now.")
