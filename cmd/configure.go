@@ -56,10 +56,10 @@ func init() {
 	// configureCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-// credentialsPath is used to store results from getCredentials. The
+// credentialsPaths is used to store results from getCredentials. The
 // user is prompted for a path to his or her TTS authentication file
 // and a path towards a passwords environment file.
-type credentialsPath struct {
+type credentialsPaths struct {
 	Tts string `survey:"tts"`
 	Pass string `survey:"passwords"`
 }
@@ -142,3 +142,5 @@ func setConfig() {
 
 	fmt.Printf("Configuration file has been written as %s.\n", viper.ConfigFileUsed())
 }
+
+func promptCredentials() (credentialsPaths)
