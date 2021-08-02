@@ -71,20 +71,7 @@ type credentialsPaths struct {
 // collected by setConfig is then written to the chosen Viper
 // configuration file.
 func setConfig() {
-	/*
-		There are 2 things that a user needs to set up in
-		order to user good-bot-cli.
 
-		1. A path towards their TTS api key.
-		2. A path towards their  password env file.
-
-		Since those are paths, they are verified with the
-		validate function below to make sure that
-
-		* They exist
-		* They are accessible from the user that is running
-		  this program.
-	*/
 	answers, err := promptCredentials()
 	if err != nil {
 		log.Fatal(err)
@@ -132,6 +119,21 @@ func setConfig() {
 // with a credentialsPaths with nothing defined at the Tts or Pass
 // keys.
 func promptCredentials() (credentialsPaths, error) {
+	/*
+		There are 2 things that a user needs to set up in
+		order to user good-bot-cli.
+
+		1. A path towards their TTS api key.
+		2. A path towards their  password env file.
+
+		Since those are paths, they are verified with the
+		validate function below to make sure that
+
+		* They exist
+		* They are accessible from the user that is running
+		  this program.
+	*/
+
 	var answers credentialsPaths
 
 	var qs = []*survey.Question {
