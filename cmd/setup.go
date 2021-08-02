@@ -230,9 +230,14 @@ func runSetupCommand(filePath string, containerPath string) {
 // where the new project should be written.
 //
 // An error is returned if it is encountered while prompting.
-func getProjectPath() (*projectSaveInfo, error) {
+func getProjectPath() (projectSaveInfo, error) {
 
-	var saveInfo *projectSaveInfo
+	// answers := struct {
+	// 	Name string `survey:"name"`
+	// 	Path string `survey:"path"`
+	// }{}
+
+	var answers projectSaveInfo
 
 	var qs = []*survey.Question{
 		{
@@ -256,17 +261,23 @@ func getProjectPath() (*projectSaveInfo, error) {
 				Help: "Provide a name for your project. The configuration directory will be saved\nunder the path:[project path]/[project name]",
 			},
 			Validate: func (val interface {}) error {
+				str, ok := val.(string)
+				if !ok {
+					return errors.New("could not use your path as a string")
+				}
+				if strings.Contains(str, string(os.PathSeparator)) {
+					return errors.New("your project name cannot contain path separators")
+				}
 				return nil
 			},
 		},
 	}
 
-	err := survey.Ask(qs, &saveInfo)
+	err := survey.Ask(qs, &answers)
 
 	if err != nil {
-		return nil, err
+		return answers, err
 	}
 
-	return  saveInfo, nil
+	return answers, nil
 }
-
