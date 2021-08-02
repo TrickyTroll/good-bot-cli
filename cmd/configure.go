@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/manifoldco/promptui"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -143,4 +144,42 @@ func setConfig() {
 	fmt.Printf("Configuration file has been written as %s.\n", viper.ConfigFileUsed())
 }
 
-func promptCredentials() (credentialsPaths)
+func promptCredentials() (credentialsPaths, error) {
+	var answers credentialsPaths
+
+	var qs = []*survey.Question {
+		{
+			Name: "tts",
+			Prompt: &survey.Input {
+				Message: "Please provide a path towards your Text-to-Speech API key",
+				Help: "This can be an absolute or relative path.",
+			},
+			Validate: func (val interface{}) error {
+				if str, ok := val.(string); !ok || !validatePath(str) {
+					return errors.New("the path provided does not seem to be valid")
+				}
+				return nil
+			},
+		},
+		{
+			Name: "passwords",
+			Prompt: &survey.Input {
+				Message: "Please provide a path towards your passwords environment file",
+				Help: "This can be an absolute or relative path.",
+			},
+
+			Validate: func (val interface{}) error {
+				if str, ok := val.(string); !ok || !validatePath(str) {
+					return errors.New("the path provided does not seem to be valid")
+				}
+				return nil
+			},
+		},
+	}
+	err := survey.Ask(qs, &answers)
+
+	if err != nil {
+		return answers, err
+	}
+	return answers, nil
+}
