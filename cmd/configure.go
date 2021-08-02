@@ -56,6 +56,14 @@ func init() {
 	// configureCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// credentialsPath is used to store results from getCredentials. The
+// user is prompted for a path to his or her TTS authentication file
+// and a path towards a passwords environment file.
+type credentialsPath struct {
+	Tts string `survey:"tts"`
+	Pass string `survey:"passwords"`
+}
+
 // setConfig creates an interactive prompt for the user to create a
 // configuration file. This function uses promptui to ask for a path
 // towards the TTS API key and a path towards the passwords file. The
