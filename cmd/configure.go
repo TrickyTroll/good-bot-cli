@@ -22,7 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/manifoldco/promptui"
+	"github.com/AlecAivazis/survey/v2"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -56,60 +56,35 @@ func init() {
 	// configureCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// credentialsPaths is used to store results from getCredentials. The
+// user is prompted for a path to his or her TTS authentication file
+// and a path towards a passwords environment file.
+type credentialsPaths struct {
+	Tts string `survey:"tts"`
+	Pass string `survey:"passwords"`
+}
+
 // setConfig creates an interactive prompt for the user to create a
-// configuration file. This function uses promptui to ask for a path
-// towards the TTS API key and a path towards the passwords file. The
-// information collected by setConfig is then written to the chosen
-// Viper configuration file.
+// configuration file. This function uses promptCredentials to ask for
+// paths towards the TTS API key and passwords file. The information
+// collected by setConfig is then written to the chosen Viper
+// configuration file.
 func setConfig() {
-	/*
-		There are 2 things that a user needs to set up in
-		order to user good-bot-cli.
 
-		1. A path towards their TTS api key.
-		2. A path towards their  password env file.
-
-		Since those are paths, they are verified with the
-		validate function below to make sure that
-
-		* They exist
-		* They are accessible from the user that is running
-		  this program.
-	*/
-	validatePath := func(path string) error {
-		_, err := os.Stat(path)
-		if os.IsNotExist(err) {
-			return errors.New("file does not exist")
-		}
-		return nil
-	}
-
-	promptApiKey := promptui.Prompt{
-		Label:    "Please provide a path towards your Text-to-Speech API key",
-		Validate: validatePath,
-	}
-
-	promptEnvFile := promptui.Prompt{
-		Label:    "Please provide a path towards your passwords environment file",
-		Validate: validatePath,
-	}
-
-	apiKeyPath, err := promptApiKey.Run()
-
+	answers, err := promptCredentials()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
+		log.Fatal(err)
 	}
 
-	envFilePath, err := promptEnvFile.Run()
-
+	absApiKeyPath, err := filepath.Abs(answers.Tts)
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
+		log.Fatal(err)
 	}
 
-	absApiKeyPath, _ := filepath.Abs(apiKeyPath)
-	absEnvFilePath, _ := filepath.Abs(envFilePath)
+	absEnvFilePath, err := filepath.Abs(answers.Pass)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	home, err := homedir.Dir()
 	cobra.CheckErr(err)
@@ -133,4 +108,66 @@ func setConfig() {
 	}
 
 	fmt.Printf("Configuration file has been written as %s.\n", viper.ConfigFileUsed())
+}
+
+// promptCredentials prompts the user for paths towards their TTS
+// credentials file and passwords environment file. The results are
+// returned as a credentialsPaths structure.
+//
+// If an error is raised during prompting, the error is returned
+// with a credentialsPaths with nothing defined at the Tts or Pass
+// keys.
+func promptCredentials() (credentialsPaths, error) {
+	/*
+		There are 2 things that a user needs to set up in
+		order to user good-bot-cli.
+
+		1. A path towards their TTS api key.
+		2. A path towards their  password env file.
+
+		Since those are paths, they are verified with the
+		validate function below to make sure that
+
+		* They exist
+		* They are accessible from the user that is running
+		  this program.
+	*/
+
+	var answers credentialsPaths
+
+	var qs = []*survey.Question {
+		{
+			Name: "tts",
+			Prompt: &survey.Input {
+				Message: "Please provide a path towards your Text-to-Speech API key",
+				Help: "This can be an absolute or relative path.",
+			},
+			Validate: func (val interface{}) error {
+				if str, ok := val.(string); !ok || !validatePath(str) {
+					return errors.New("the path provided does not seem to be valid")
+				}
+				return nil
+			},
+		},
+		{
+			Name: "passwords",
+			Prompt: &survey.Input {
+				Message: "Please provide a path towards your passwords environment file",
+				Help: "This can be an absolute or relative path.",
+			},
+
+			Validate: func (val interface{}) error {
+				if str, ok := val.(string); !ok || !validatePath(str) {
+					return errors.New("the path provided does not seem to be valid")
+				}
+				return nil
+			},
+		},
+	}
+	err := survey.Ask(qs, &answers)
+
+	if err != nil {
+		return answers, err
+	}
+	return answers, nil
 }

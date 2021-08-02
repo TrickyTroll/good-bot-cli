@@ -23,7 +23,10 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
@@ -73,6 +76,14 @@ func init() {
 	// setupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// projectSaveInfo is used ton store results from getProjectPath. The
+// user is prompted for a save path and a file name, which are stored as
+// "path" and "name", respectively.
+type projectSaveInfo struct {
+		Path string `survey:"path"`
+		Name string `survey:"name"`
+}
+
 // runSetupCommand uses Good Bot's Docker image to set up the project. It pulls
 // the image on each run. The container's output is copied to the shell's
 // stdout and the container is started interactively. This allows the user to
@@ -111,6 +122,19 @@ func runSetupCommand(filePath string, containerPath string) {
 	scriptName := stats.Name()
 
 	containerScriptPath := containerPath + "/" + scriptName
+	writeLoc := "/users-cwd"
+	projectPath, err := getProjectPath()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	containerWritePath := filepath.Join(writeLoc, projectPath.Name)
+	hostWritePath, err := filepath.Abs(projectPath.Path)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 
@@ -119,14 +143,21 @@ func runSetupCommand(filePath string, containerPath string) {
 		AttachStderr: true,
 		Tty:          true,
 		OpenStdin:    true,
-		Cmd:          []string{"setup", containerScriptPath},
+		Cmd:          []string{"setup", "--project-path",containerWritePath, containerScriptPath},
 		Image:        "trickytroll/good-bot:latest",
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{ // Mounting the location where the script is written.
+			// Mounting the location of the config file.
 			{
 				Type:   mount.TypeBind,
 				Source: getDir(filePath),
 				Target: containerPath,
+			},
+			// Mounting the write location of the project directory.
+			{
+				Type: mount.TypeBind,
+				Source: hostWritePath,
+				Target: writeLoc,
 			},
 		},
 	}, nil, nil, "")
@@ -192,4 +223,56 @@ func runSetupCommand(filePath string, containerPath string) {
 	}
 
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+}
+
+// getProjectPath prompts the user for a project save path and a project
+// name. The path and the name are then joined to return the path towards
+// where the new project should be written.
+//
+// An error is returned if it is encountered while prompting.
+func getProjectPath() (projectSaveInfo, error) {
+
+	var answers projectSaveInfo
+
+	var qs = []*survey.Question{
+		{
+			Name: "path",
+			Prompt: &survey.Input{
+				Message: "Where do you want to save your project?",
+				Help: "Provide an existing directory on your system. Good Bot will write your\nproject configuration in this directory.",
+			},
+			// Making sure that the directory exists
+			Validate: func (val interface{}) error {
+				if str, ok := val.(string); !ok || !validatePath(str) {
+					return errors.New("the path provided does not seem to be valid")
+				}
+				return nil
+			},
+		},
+		{
+			Name: "name",
+			Prompt: &survey.Input{
+				Message: "How do you want to name your project?",
+				Help: "Provide a name for your project. The configuration directory will be saved\nunder the path:[project path]/[project name]",
+			},
+			Validate: func (val interface {}) error {
+				str, ok := val.(string)
+				if !ok {
+					return errors.New("could not use your path as a string")
+				}
+				if strings.Contains(str, string(os.PathSeparator)) {
+					return errors.New("your project name cannot contain path separators")
+				}
+				return nil
+			},
+		},
+	}
+
+	err := survey.Ask(qs, &answers)
+
+	if err != nil {
+		return answers, err
+	}
+
+	return answers, nil
 }
