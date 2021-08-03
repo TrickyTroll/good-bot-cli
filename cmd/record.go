@@ -139,6 +139,16 @@ audio recordings. No gifs or mp4 files are produced.`)
 // flags to the container's command-line interface.
 func runRecordCommand(hostPath string, ttsFile string, envVars []string, settings *languageSettings) {
 	// Used later for i/o between container and shell
+	isRead, err := isReadStatement(hostPath)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if isRead && len(ttsFile) < 1 {
+		fmt.Println("You need a TTS credentials file to use 'read' statements in your script.")
+		fmt.Println("For more information on the credentials file, please refer to the documentation")
+	}
 	inout := make(chan []byte)
 
 	ctx := context.Background()
