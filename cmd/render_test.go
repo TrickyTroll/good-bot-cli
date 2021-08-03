@@ -15,13 +15,31 @@ import (
 
 func TestRenderRecording(t *testing.T) {
 
-	asciicastPath, err := filepath.Abs(filepath.Join(testData.testProject1, "scene_1/asciicasts/commands_1.cast"))
+	castPath, err := filepath.Abs(filepath.Join(testData.testProject1, "scene_1/asciicasts/commands_1.cast"))
+
+	backup, err := filepath.Abs(filepath.Join(filepath.Dir(castPath), "castCopy.yaml"))
+	if err != nil {
+		panic(err)
+	}
+	defer os.Rename(backup, castPath)
+
+	contents, err := os.ReadFile(castPath)
+
+	if err != nil {
+		t.Errorf("Test error: could not read file %s.\n%s", castPath, err)
+	}
+
+	err = ioutil.WriteFile(backup, contents, 0644)
+
+	if err != nil {
+		t.Errorf("Test  error: could not write to file.\n%s", err)
+	}
 
 	if err != nil {
 		t.Errorf("Test error: could not find absolute path in TestRenderRecording.\n%s", err)
 	}
 
-	_, err = os.Stat(asciicastPath)
+	_, err = os.Stat(castPath)
 
 	if err != nil {
 		t.Errorf("Test error: file provided in TestRenderRecording does not seem to be valid.\n%s", err)
@@ -39,13 +57,13 @@ func TestRenderRecording(t *testing.T) {
 	}
 	io.Copy(os.Stdout, reader) // Print container info to stdout.
 
-	render := renderRecording(asciicastPath, cli, ctx)
+	render := renderRecording(castPath, cli, ctx)
 
 	// Checking if file has been properly created.
 	_, err = os.Stat(render)
 
 	if err != nil {
-		t.Errorf("renderRecording on file %s did not produce a valid outpuput.\nCalling os.Stat on the file created by renderRecording returned error:\n%s", asciicastPath, err)
+		t.Errorf("renderRecording on file %s did not produce a valid outpuput.\nCalling os.Stat on the file created by renderRecording returned error:\n%s", castPath, err)
 	}
 
 	// Cleaning up
@@ -96,6 +114,7 @@ func TestCropRec(t *testing.T) {
 		fileLines = append(fileLines, scanner.Bytes())
 	}
 
+	// Checking if new file is properly cropped.
 	info, err := getAsciicastConfig(fileLines)
 
 	if err != nil {
