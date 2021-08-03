@@ -149,6 +149,10 @@ func promptCredentials() (credentialsPaths, error) {
 			},
 			Validate: func (val interface{}) error {
 				if str, ok := val.(string); !ok || !validatePath(str) {
+					// Accepting empty values
+					if len(str) == 0 {
+						return nil
+					}
 					return errors.New("the path provided does not seem to be valid")
 				}
 				return nil
@@ -163,6 +167,10 @@ func promptCredentials() (credentialsPaths, error) {
 
 			Validate: func (val interface{}) error {
 				if str, ok := val.(string); !ok || !validatePath(str) {
+					// Accepting empty values
+					if len(str) == 0 {
+						return nil
+					}
 					return errors.New("the path provided does not seem to be valid")
 				}
 				return nil
