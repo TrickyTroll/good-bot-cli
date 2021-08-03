@@ -15,6 +15,8 @@ func TestMain(m *testing.M) {
 	os.Exit(testsRes)
 }
 
+var TestProject1 string = "../testdata/project_1"
+
 var toCreate = struct {
 	testProject string
 	testDir     string
