@@ -140,17 +140,9 @@ audio recordings. No gifs or mp4 files are produced.`)
 func runRecordCommand(hostPath string, ttsFile string, envVars []string, settings *languageSettings) {
 	// Used later for i/o between container and shell
 	isRead, err := isReadStatement(hostPath)
+	var containerTtsPath string
+	var credentialsEnv string
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if isRead && len(ttsFile) < 1 {
-		fmt.Println("You need a TTS credentials file to use 'read' statements in your script.")
-		// TODO: add link to documentation here:
-		fmt.Println("For more information on the credentials file, please refer to the documentation.")
-		os.Exit(1)
-	}
 	inout := make(chan []byte)
 
 	ctx := context.Background()
@@ -165,16 +157,7 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 	}
 	io.Copy(os.Stdout, reader)
 
-	ttyFileStats, err := os.Stat(ttsFile)
-	if err != nil {
-		panic(err)
-	}
-	ttsFileName := ttyFileStats.Name()
 
-	containerTtsPath := "/credentials/" + ttsFileName
-
-	credentialsEnv := fmt.Sprintf("GOOGLE_APPLICATION_CREDENTIALS=%s", containerTtsPath)
-	envVars = append(envVars, credentialsEnv)
 
 	stats, err := os.Stat(hostPath)
 	if err != nil {
@@ -184,6 +167,30 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 	projectName := stats.Name()
 
 	containerProjectPath := "/project" + "/" + projectName
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if isRead && len(ttsFile) < 1 {
+		fmt.Println("You need a TTS credentials file to use 'read' statements in your script.")
+		// TODO: add link to documentation here:
+		fmt.Println("For more information on the credentials file, please refer to the documentation.")
+		os.Exit(1)
+	} else if isRead && len(ttsFile) > 1 { // There is a tts file and something to read.
+		ttyFileStats, err := os.Stat(ttsFile)
+		if err != nil {
+			panic(err)
+		}
+		ttsFileName := ttyFileStats.Name()
+
+		containerTtsPath = "/credentials/" + ttsFileName
+		credentialsEnv = fmt.Sprintf("GOOGLE_APPLICATION_CREDENTIALS=%s", containerTtsPath)
+		envVars = append(envVars, credentialsEnv)
+	} else {
+
+	}
+
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		AttachStdin:  true,
