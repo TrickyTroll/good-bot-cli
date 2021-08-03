@@ -147,7 +147,8 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 
 	if isRead && len(ttsFile) < 1 {
 		fmt.Println("You need a TTS credentials file to use 'read' statements in your script.")
-		fmt.Println("For more information on the credentials file, please refer to the documentation")
+		// TODO: add link to documentation here:
+		fmt.Println("For more information on the credentials file, please refer to the documentation.")
 		os.Exit(1)
 	}
 	inout := make(chan []byte)
