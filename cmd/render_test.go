@@ -15,7 +15,7 @@ import (
 
 func TestRenderRecording(t *testing.T) {
 
-	asciicastPath, err := filepath.Abs(filepath.Join(TestProject1, "scene_1/asciicasts/commands_1.cast"))
+	asciicastPath, err := filepath.Abs(filepath.Join(testData.testProject1, "scene_1/asciicasts/commands_1.cast"))
 
 	if err != nil {
 		t.Errorf("Test error: could not find absolute path in TestRenderRecording.\n%s", err)
@@ -57,7 +57,7 @@ func TestRenderRecording(t *testing.T) {
 // or not the cropped recording is in the 24x80 format.
 func TestCropRec(t *testing.T) {
 	// Creating copy of test file
-	castPath, err := filepath.Abs(filepath.Join(TestProject1, "croptests/commands_1.cast"))
+	castPath, err := filepath.Abs(filepath.Join(testData.testProject1, "croptests/commands_1.cast"))
 
 	if err != nil {
 		t.Errorf("Test error: Error finding testdata: %s\n", err)
@@ -118,7 +118,7 @@ func TestCropRec(t *testing.T) {
 // files in one of the scene's asciicast directory.
 func TestGetRecsPaths(t *testing.T) {
 
-	projectPath, err := filepath.Abs(TestProject1)
+	projectPath, err := filepath.Abs(testData.testProject1)
 
 	if err != nil {
 		t.Errorf("Error finding testdata: %s", err)
@@ -142,7 +142,7 @@ func TestGetRecsPaths(t *testing.T) {
 // asciicast v2 file.
 func TestGetSceneCastsContents(t *testing.T) {
 
-	scenePath, err := filepath.Abs(filepath.Join(TestProject1, "scene_1"))
+	scenePath, err := filepath.Abs(filepath.Join(testData.testProject1, "scene_1"))
 
 	if err != nil {
 		t.Errorf("Error finding testdata: %s", err)
@@ -195,7 +195,7 @@ func TestGetSceneCastsContents(t *testing.T) {
 // for this test is commands_1.cast in the testdata/croptests.
 func TestGetAsciicastConfig(t *testing.T) {
 
-	recPath, err := filepath.Abs(filepath.Join(TestProject1, "croptests/commands_1.cast"))
+	recPath, err := filepath.Abs(filepath.Join(testData.testProject1, "croptests/commands_1.cast"))
 
 	if err != nil {
 		t.Errorf("Error finding file: %s", err)
@@ -285,7 +285,7 @@ func TestGetAsciicastConfig(t *testing.T) {
 // asciicast file. Each path is tested by making sure that
 // the file exists and that it has one of the allowed extensions.
 func TestGetSceneCastsReturns(t *testing.T) {
-	scenePath, err := filepath.Abs(filepath.Join(TestProject1, "scene_1"))
+	scenePath, err := filepath.Abs(filepath.Join(testData.testProject1, "scene_1"))
 
 	if err != nil {
 		t.Errorf("Error finding testdata: %s", err)
@@ -342,7 +342,7 @@ func TestGetSceneCastsReturns(t *testing.T) {
 // are not individually checked to make sure that they are really
 // paths towards asciicasts.
 func TestGetSceneCastsOnCasts(t *testing.T) {
-	scenePath, err := filepath.Abs(filepath.Join(TestProject1,"scene_1"))
+	scenePath, err := filepath.Abs(filepath.Join(testData.testProject1,"scene_1"))
 	if err != nil {
 		t.Errorf("Error finding testdata: %s", err)
 	}
@@ -374,7 +374,7 @@ func TestGetSceneCastsOnCasts(t *testing.T) {
 // that should not be recognized as asciicast files. Those files are
 // contained in the second scene of the testdata directory.
 func TestGetSceneCastsWithExtra(t *testing.T) {
-	scenePath, err := filepath.Abs(filepath.Join(TestProject1, "scene_2"))
+	scenePath, err := filepath.Abs(filepath.Join(testData.testProject1, "scene_2"))
 	if err != nil {
 		t.Errorf("Error finding testdata: %s", err)
 	}
@@ -408,7 +408,7 @@ func TestGetSceneCastsWithExtra(t *testing.T) {
 // returns the proper scene for a file. The file used for this test
 // is read_1.txt from testdata/scene_2/read/read_1.txt
 func TestGetScenePath(t *testing.T) {
-	path, err := filepath.Abs(filepath.Join(TestProject1, "scene_2/read/read_1.txt"))
+	path, err := filepath.Abs(filepath.Join(testData.testProject1, "scene_2/read/read_1.txt"))
 	if err != nil {
 		t.Errorf("Error finding testdata: %s", err)
 	}
