@@ -15,8 +15,6 @@ func TestMain(m *testing.M) {
 	os.Exit(testsRes)
 }
 
-var TestProject1 string = "../testdata/project_1"
-
 var toCreate = struct {
 	testProject string
 	testDir     string
@@ -27,7 +25,9 @@ var testData = struct {
 	project string
 	dir     string
 	file    string
-}{"", "", ""}
+	testProject1 string
+	noAudio string
+}{"", "", "", "", ""}
 
 func setup() string {
 	projectDir, err := ioutil.TempDir("", toCreate.testProject)
@@ -51,6 +51,21 @@ func setup() string {
 	testData.project = projectDir
 	testData.dir = dirname
 	testData.file = filepath.Join(file.Name())
+
+	testProject1, err := filepath.Abs("../testdata/project_1")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	testNoAudio, err := filepath.Abs("../testdata/no_audio")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	testData.testProject1 = testProject1
+	testData.noAudio = testNoAudio
 
 	return projectDir
 }
