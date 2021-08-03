@@ -16,14 +16,13 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 
-	"github.com/manifoldco/promptui"
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -86,6 +85,7 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	} else {
 		if askSetConfig() {
+			fmt.Println("Ok. Setting up your configuration file now.")
 			setConfig()
 		} else {
 			fmt.Println("Ok. Won't be setting a configuration file for now.")
@@ -127,46 +127,45 @@ func dockerCheck() {
 	}
 }
 
-func askRecDir() string {
-	validatePath := func(path string) error {
-		_, err := os.Stat(path)
-		if os.IsNotExist(err) {
-			return errors.New("file does not exist")
-		}
-		return nil
-	}
+// func askRecDir() string {
+// 	validatePath := func(path string) error {
+// 		_, err := os.Stat(path)
+// 		if os.IsNotExist(err) {
+// 			return errors.New("file does not exist")
+// 		}
+// 		return nil
+// 	}
 
-	promptRecDir := promptui.Prompt{
-		Label:    "What is the path towards the project you want to record?\n",
-		Validate: validatePath,
-	}
+// 	promptRecDir := promptui.Prompt{
+// 		Label:    "What is the path towards the project you want to record?\n",
+// 		Validate: validatePath,
+// 	}
 
-	recDir, err := promptRecDir.Run()
+// 	recDir, err := promptRecDir.Run()
 
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return ""
-	}
+// 	if err != nil {
+// 		fmt.Printf("Prompt failed %v\n", err)
+// 		return ""
+// 	}
 
-	return recDir
-}
+// 	return recDir
+// }
 
 // askSetConfig prompts the user on whether or not the CLI should be configured
 // right now.
 //
-// It uses the promptui library to provide an interactive yes/no prompt.
+// It uses the survey library to provide an interactive yes/no prompt.
 //
 // The result is then returned as a bool (true for yes false for no).
 func askSetConfig() bool {
 	fmt.Println("No configuration file was found!")
-	fmt.Println("Would you like to create one now (yes/no)? ")
-	prompt := promptui.Select{
-		Label: "Select[Yes/No]",
-		Items: []string{"Yes", "No"},
+	var setConfig bool
+	prompt := &survey.Confirm{
+		Message: "Would you like to create one now?",
 	}
-	_, result, err := prompt.Run()
+	err := survey.AskOne(prompt, &setConfig)
 	if err != nil {
 		log.Fatalf("Prompt failed %v\n", err)
 	}
-	return result == "Yes"
+	return setConfig
 }
