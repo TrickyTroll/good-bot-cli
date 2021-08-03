@@ -32,3 +32,11 @@ func TestValidatePath(t *testing.T) {
 		}
 	}
 }
+
+func TestIsReadStatementWithRead(t *testing.T) {
+
+}
+
+func TestIsReadStatementNoRead(t *testing.T) {
+
+}
