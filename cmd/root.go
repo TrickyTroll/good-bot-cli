@@ -152,6 +152,9 @@ func askSetConfig() bool {
 // or not a read statement is used. To make this check, each scene in
 // the project directory is searched. If there is a non-empty directory
 // called "read" in one of the scenes, this function returns true.
+//
+// If there is an error returned when reading a directory, it is
+// returned and the boolean value returned is false.
 func isReadStatement(projectPath string) (bool, error) {
 	projectContents, err := os.ReadDir(projectPath)
 
