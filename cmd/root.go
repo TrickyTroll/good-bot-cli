@@ -164,7 +164,7 @@ func isReadStatement(projectPath string) (bool, error) {
 	for _, scene := range(projectContents) {
 		// Ignoring items that aren't scenes.
 		if strings.Contains(scene.Name(), "scene_") && scene.IsDir() {
-			sceneContents, err := os.ReadDir(scene.Name())
+			sceneContents, err := os.ReadDir(filepath.Join(projectPath, scene.Name()))
 
 			if err != nil {
 				return false, err
