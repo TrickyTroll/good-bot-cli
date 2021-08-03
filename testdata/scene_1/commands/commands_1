@@ -1,4 +1,0 @@
-commands:
-- echo 'hello world'
-expect:
-- prompt
