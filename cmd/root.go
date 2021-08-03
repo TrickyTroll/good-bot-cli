@@ -152,23 +152,29 @@ func askSetConfig() bool {
 // or not a read statement is used. To make this check, each scene in
 // the project directory is searched. If there is a non-empty directory
 // called "read" in one of the scenes, this function returns true.
-func isReadStatement(scriptPath string) (bool, error) {
-	file, err := os.Open(scriptPath)
-	defer file.Close()
+func isReadStatement(projectPath string) (bool, error) {
+	projectContents, err := os.ReadDir(projectPath)
 
 	if err != nil {
 		return false, err
 	}
 
-	scanner := bufio.NewScanner(file)
+	for _, scene := range(projectContents) {
+		// Ignoring items that aren't scenes.
+		if strings.Contains(scene.Name(), "scene_") && scene.IsDir() {
+			sceneContents, err := os.ReadDir(scene.Name())
 
-	for scanner.Scan() {
-		contents := scanner.Text()
-		if strings.Contains(contents, "read:") || strings.Contains(contents, "read :") {
-			return true, nil
+			if err != nil {
+				return false, err
+			}
+
+			for _, item := range(sceneContents) {
+				if strings.Contains(item.Name(), "read") && item.IsDir() {
+					return true, nil
+				}
+			}
 		}
 	}
 
-	// File is closed using the defer statement
 	return false, nil
 }
