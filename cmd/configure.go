@@ -76,14 +76,21 @@ func setConfig() {
 		log.Fatal(err)
 	}
 
-	absApiKeyPath, err := filepath.Abs(answers.Tts)
-	if err != nil {
-		log.Fatal(err)
+	// Making sure that the user did provide a value.
+	if len(answers.Tts) > 0 {
+		absApiKeyPath, err := filepath.Abs(answers.Tts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		viper.Set("ttsCredentials", absApiKeyPath)
 	}
 
-	absEnvFilePath, err := filepath.Abs(answers.Pass)
-	if err != nil {
-		log.Fatal(err)
+	if len(answers.Pass) > 0 {
+		absEnvFilePath, err := filepath.Abs(answers.Pass)
+		if err != nil {
+			log.Fatal(err)
+		}
+		viper.Set("passwordsEnv", absEnvFilePath)
 	}
 
 	home, err := homedir.Dir()
@@ -92,8 +99,6 @@ func setConfig() {
 	viper.AddConfigPath(home)
 	viper.SetConfigName(".good-bot-cli")
 	viper.SetConfigType("yaml")
-	viper.Set("ttsCredentials", absApiKeyPath)
-	viper.Set("passwordsEnv", absEnvFilePath)
 
 	file, err := os.Create(home + "/.good-bot-cli.yaml")
 	if err != nil {
