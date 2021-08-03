@@ -148,6 +148,10 @@ func askSetConfig() bool {
 	return setConfig
 }
 
+// isReadStatement reads a script file line by line and checks whether
+// or not a read statement is used. To make this check, each scene in
+// the project directory is searched. If there is a non-empty directory
+// called "read" in one of the scenes, this function returns true.
 func isReadStatement(scriptPath string) (bool, error) {
 	file, err := os.Open(scriptPath)
 	defer file.Close()
