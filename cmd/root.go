@@ -16,11 +16,13 @@ limitations under the License.
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
@@ -144,4 +146,25 @@ func askSetConfig() bool {
 		log.Fatalf("Prompt failed %v\n", err)
 	}
 	return setConfig
+}
+
+func isReadStatement(scriptPath string) (bool, error) {
+	file, err := os.Open(scriptPath)
+	defer file.Close()
+
+	if err != nil {
+		return false, err
+	}
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		contents := scanner.Text()
+		if strings.Contains(contents, "read:") || strings.Contains(contents, "read :") {
+			return true, nil
+		}
+	}
+
+	// File is closed using the defer statement
+	return false, nil
 }
