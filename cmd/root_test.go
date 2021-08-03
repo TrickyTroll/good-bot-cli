@@ -33,6 +33,8 @@ func TestValidatePath(t *testing.T) {
 	}
 }
 
+// TestIsReadStatementWithRead uses isReadStatement on a project that contains
+// audio files. isReadStatement should return true.
 func TestIsReadStatementWithRead(t *testing.T) {
 	isRead, err := isReadStatement(testData.testProject1)
 	if err != nil {
@@ -43,6 +45,8 @@ func TestIsReadStatementWithRead(t *testing.T) {
 	}
 }
 
+// TestIsReadStatementWithRead uses isReadStatement on a project that does not
+// contain audio files. isReadStatement should return false.
 func TestIsReadStatementNoRead(t *testing.T) {
 	isRead, err := isReadStatement(testData.noAudio)
 	if err != nil {
