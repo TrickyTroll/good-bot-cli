@@ -52,7 +52,7 @@ func TestIsReadStatementNoRead(t *testing.T) {
 	if err != nil {
 		t.Errorf("isReadStatement(%s) returned error:\n%s", testData.noAudio, err)
 	}
-	if !isRead {
+	if isRead {
 		t.Errorf("isReadStatement(%s) returned %t, should be %t", testData.noAudio, isRead, !isRead)
 	}
 }
