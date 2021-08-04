@@ -126,7 +126,11 @@ func processPath(path string) (string, error) {
 	} else {
 		// This is in an else statement because the first if
 		// guarantees an absolute path.
+		var err error
 		processedPath, err = filepath.Abs(path)
+		if err != nil {
+			return "", err
+		}
 	}
 	return processedPath, nil
 }
