@@ -80,18 +80,6 @@ func initConfig() {
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	} else {
-		if askSetConfig() {
-			fmt.Println("Ok. Setting up your configuration file now.")
-			setConfig()
-		} else {
-			fmt.Println("Ok. Won't be setting a configuration file for now.")
-		}
-	}
 }
 
 // validatePath checks whether or not a path exists. The check is done using
@@ -157,6 +145,20 @@ func dockerCheck() {
 	_, err := exec.LookPath("docker")
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func setConfigInteraction() {
+	// If a config file is found, read it in.
+	if err := viper.ReadInConfig(); err == nil {
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	} else {
+		if askSetConfig() {
+			fmt.Println("Ok. Setting up your configuration file now.")
+			setConfig()
+		} else {
+			fmt.Println("Ok. Won't be setting a configuration file for now.")
+		}
 	}
 }
 
