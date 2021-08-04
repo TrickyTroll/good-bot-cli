@@ -115,8 +115,11 @@ func processPath(path string) (string, error) {
 	}
 	if strings.HasPrefix(path, "~") {
 		processedPath = filepath.Join(homeDir, path[1:])
+	} else {
+		// This is in an else statement because the first if
+		// guarantees an absolute path.
+		processedPath, err = filepath.Abs(path)
 	}
-
 	return processedPath, nil
 }
 
