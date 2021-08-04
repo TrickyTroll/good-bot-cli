@@ -142,6 +142,7 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 	isRead, err := isReadStatement(hostPath)
 	var containerTtsPath string
 	var credentialsEnv string
+	var resp container.ContainerCreateCreatedBody
 
 	inout := make(chan []byte)
 
@@ -157,8 +158,6 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 	}
 	io.Copy(os.Stdout, reader)
 
-
-
 	stats, err := os.Stat(hostPath)
 	if err != nil {
 		panic(err)
@@ -173,11 +172,22 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 	}
 
 	if isRead && len(ttsFile) < 1 {
+
+		//////////////////////////////////////////////////////////////////
+		// The user wants audio but does not have a credentials file    //
+		//////////////////////////////////////////////////////////////////
+
 		fmt.Println("You need a TTS credentials file to use 'read' statements in your script.")
 		// TODO: add link to documentation here:
 		fmt.Println("For more information on the credentials file, please refer to the documentation.")
 		os.Exit(1)
+
 	} else if isRead && len(ttsFile) > 1 { // There is a tts file and something to read.
+
+		///////////////////////
+		// Run with audio	 //
+		///////////////////////
+
 		ttyFileStats, err := os.Stat(ttsFile)
 		if err != nil {
 			panic(err)
@@ -187,38 +197,70 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 		containerTtsPath = "/credentials/" + ttsFileName
 		credentialsEnv = fmt.Sprintf("GOOGLE_APPLICATION_CREDENTIALS=%s", containerTtsPath)
 		envVars = append(envVars, credentialsEnv)
+
+		resp, err = cli.ContainerCreate(ctx, &container.Config{
+			AttachStdin:  true,
+			AttachStdout: true,
+			AttachStderr: true,
+			Tty:          true,
+			OpenStdin:    true,
+			Env:          envVars,
+			Cmd:          []string{"record", containerProjectPath, "-l", settings.lang, "-n", settings.langName},
+			Image:        "trickytroll/good-bot:latest",
+			Volumes:      map[string]struct{}{},
+		}, &container.HostConfig{
+			Mounts: []mount.Mount{
+				{
+					Type:   mount.TypeBind,
+					Source: getDir(hostPath),
+					Target: "/project",
+				},
+				{
+					Type:   mount.TypeBind,
+					Source: getDir(ttsFile),
+					Target: "/credentials",
+				},
+			},
+		}, nil, nil, "")
+		if err != nil {
+			panic(err)
+		}
+
 	} else {
 
+		//////////////////////////
+		// Run without audio    //
+		//////////////////////////
+
+		resp, err = cli.ContainerCreate(ctx, &container.Config{
+			AttachStdin:  true,
+			AttachStdout: true,
+			AttachStderr: true,
+			Tty:          true,
+			OpenStdin:    true,
+			// No need for language settings since there is no audio.
+			Cmd:          []string{"record", containerProjectPath},
+			Image:        "trickytroll/good-bot:latest",
+			Volumes:      map[string]struct{}{},
+		}, &container.HostConfig{
+			Mounts: []mount.Mount{
+				{
+					Type:   mount.TypeBind,
+					Source: getDir(hostPath),
+					Target: "/project",
+				},
+				{
+					Type:   mount.TypeBind,
+					Source: getDir(ttsFile),
+					Target: "/credentials",
+				},
+			},
+		}, nil, nil, "")
+		if err != nil {
+			panic(err)
+		}
 	}
 
-
-	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		AttachStdin:  true,
-		AttachStdout: true,
-		AttachStderr: true,
-		Tty:          true,
-		OpenStdin:    true,
-		Env:          envVars,
-		Cmd:          []string{"record", containerProjectPath, "-l", settings.lang, "-n", settings.langName},
-		Image:        "trickytroll/good-bot:latest",
-		Volumes:      map[string]struct{}{},
-	}, &container.HostConfig{
-		Mounts: []mount.Mount{
-			{
-				Type:   mount.TypeBind,
-				Source: getDir(hostPath),
-				Target: "/project",
-			},
-			{
-				Type:   mount.TypeBind,
-				Source: getDir(ttsFile),
-				Target: "/credentials",
-			},
-		},
-	}, nil, nil, "")
-	if err != nil {
-		panic(err)
-	}
 
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		panic(err)
