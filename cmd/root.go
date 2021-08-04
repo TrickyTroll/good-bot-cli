@@ -142,7 +142,7 @@ func processPath(path string) (string, error) {
 // with an error.
 func mergeProcessedPaths(prefix, path string) (string, error) {
 	var joinedPaths string
-	if len(path) > 2 {
+	if len(path) >= 2 {
 		joinedPaths = filepath.Join(prefix, path[1:])
 	} else if len(path) == 1 {
 		joinedPaths = filepath.Join(prefix, path)
