@@ -81,6 +81,7 @@ func init() {
 
 	// gifsOnly is defined in record.go
 	renderCmd.Flags().BoolVar(&gifsOnly, "gifs-only", false, "Only produce gifs. No mp4 files will be created.")
+	setConfigInteraction()
 }
 
 const recordingsPath string = "/asciicasts/"

@@ -123,6 +123,7 @@ func init() {
 audio recordings. No gifs or mp4 files are produced.`)
 	recordCmd.Flags().StringVarP(&language, "language", "l", "en-US", "Which language code to use for the narration.")
 	recordCmd.Flags().StringVarP(&languageName, "language-name", "n", "en-US-Standard-C", "Which language name to use for the narration.")
+	setConfigInteraction()
 }
 
 // runRecordCommand uses Good Bot's record command to record a project.
