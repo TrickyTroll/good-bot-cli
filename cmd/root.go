@@ -148,6 +148,15 @@ func dockerCheck() {
 	}
 }
 
+// setConfigInteraction checks if a configuration file exists. If it
+// doesn't, the user will be prompted on whether or not an interactive
+// configuration process should be started.
+//
+// If the user wants to configure the program now, the interactive
+// prompting will begin and the config file will be filled.
+//
+// If the configuration is postponed, an empty configuration file will
+// be created.
 func setConfigInteraction() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
