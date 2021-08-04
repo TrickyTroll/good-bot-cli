@@ -47,6 +47,7 @@ The --no-render flag can be used to speed up the recording
 process. Once you are happy with the result, the video can be
 rendered afterwards using this command.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		setConfigInteraction()
 		dockerCheck()
 		// First argument should be the project path.
 		renderAllRecordings(args[0])

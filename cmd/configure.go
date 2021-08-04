@@ -16,11 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/AlecAivazis/survey/v2"
 	homedir "github.com/mitchellh/go-homedir"
@@ -76,14 +74,21 @@ func setConfig() {
 		log.Fatal(err)
 	}
 
-	absApiKeyPath, err := filepath.Abs(answers.Tts)
-	if err != nil {
-		log.Fatal(err)
+	// Making sure that the user did provide a value.
+	if len(answers.Tts) > 0 {
+		absApiKeyPath, err := processPath(answers.Tts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		viper.Set("ttsCredentials", absApiKeyPath)
 	}
 
-	absEnvFilePath, err := filepath.Abs(answers.Pass)
-	if err != nil {
-		log.Fatal(err)
+	if len(answers.Pass) > 0 {
+		absEnvFilePath, err := processPath(answers.Pass)
+		if err != nil {
+			log.Fatal(err)
+		}
+		viper.Set("passwordsEnv", absEnvFilePath)
 	}
 
 	home, err := homedir.Dir()
@@ -92,8 +97,6 @@ func setConfig() {
 	viper.AddConfigPath(home)
 	viper.SetConfigName(".good-bot-cli")
 	viper.SetConfigType("yaml")
-	viper.Set("ttsCredentials", absApiKeyPath)
-	viper.Set("passwordsEnv", absEnvFilePath)
 
 	file, err := os.Create(home + "/.good-bot-cli.yaml")
 	if err != nil {
@@ -144,7 +147,11 @@ func promptCredentials() (credentialsPaths, error) {
 			},
 			Validate: func (val interface{}) error {
 				if str, ok := val.(string); !ok || !validatePath(str) {
-					return errors.New("the path provided does not seem to be valid")
+					// Accepting empty values
+					if len(str) == 0 {
+						return nil
+					}
+					return fmt.Errorf("the path: %s does not seem to be valid", str)
 				}
 				return nil
 			},
@@ -158,7 +165,11 @@ func promptCredentials() (credentialsPaths, error) {
 
 			Validate: func (val interface{}) error {
 				if str, ok := val.(string); !ok || !validatePath(str) {
-					return errors.New("the path provided does not seem to be valid")
+					// Accepting empty values
+					if len(str) == 0 {
+						return nil
+					}
+					return fmt.Errorf("the path: %s does not seem to be valid", str)
 				}
 				return nil
 			},
