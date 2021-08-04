@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/AlecAivazis/survey/v2"
 	homedir "github.com/mitchellh/go-homedir"
