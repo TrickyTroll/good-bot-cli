@@ -167,6 +167,7 @@ func setConfigInteraction() {
 			setConfig()
 		} else {
 			fmt.Println("Ok. Won't be setting a configuration file for now.")
+			os.Create(viper.ConfigFileUsed())
 		}
 	}
 }
