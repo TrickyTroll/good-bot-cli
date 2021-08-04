@@ -135,6 +135,19 @@ func processPath(path string) (string, error) {
 	return processedPath, nil
 }
 
+func mergeProcessedPaths(prefix, path string) (string, error) {
+	var joinedPaths string
+	if len(path) > 2 {
+		joinedPaths = filepath.Join(prefix, path[1:])
+	} else if len(path) == 1 {
+		joinedPaths = filepath.Join(prefix, path)
+	} else {
+		err := fmt.Errorf("path '%s' provided was invalid, had lenght %d.", path, len(path))
+		return "", err
+	}
+	return joinedPaths, nil
+}
+
 // getDir gets the directory where a file is saved. The path returned by
 // this function is a full path. If the current working directory cannot
 // be found, filepath.Abs returns an error. This error is handled by a
