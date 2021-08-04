@@ -77,7 +77,7 @@ func setConfig() {
 
 	// Making sure that the user did provide a value.
 	if len(answers.Tts) > 0 {
-		absApiKeyPath, err := filepath.Abs(answers.Tts)
+		absApiKeyPath, err := processPath(answers.Tts)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -85,7 +85,7 @@ func setConfig() {
 	}
 
 	if len(answers.Pass) > 0 {
-		absEnvFilePath, err := filepath.Abs(answers.Pass)
+		absEnvFilePath, err := processPath(answers.Pass)
 		if err != nil {
 			log.Fatal(err)
 		}
