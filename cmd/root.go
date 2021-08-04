@@ -110,12 +110,19 @@ func validatePath(path string) bool {
 // This function always returns an absolute path.
 func processPath(path string) (string, error) {
 	var processedPath string
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
+
 	if strings.HasPrefix(path, "~") {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
 		processedPath = filepath.Join(homeDir, path[1:])
+	} else if strings.HasPrefix(path, ".") {
+		currentDir, err := os.Getwd()
+		if err != nil {
+			return "", err
+		}
+		processedPath = filepath.Join(currentDir, path[1:])
 	} else {
 		// This is in an else statement because the first if
 		// guarantees an absolute path.
