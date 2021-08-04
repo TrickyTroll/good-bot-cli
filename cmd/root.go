@@ -107,6 +107,17 @@ func validatePath(path string) bool {
 	return err == nil
 }
 
+// processPath takes a path as an input and returns a path that
+// other Go functions can use more easily.
+//
+// If the path starts with a "~" character, "~" is replaced by
+// the full path to the user's home directory.
+//
+// If any error is encountered while trying to find the user's
+// home directory, or while getting an absolute path, the error
+// is returned.
+//
+// This function always returns an absolute path.
 func processPath(path string) (string, error) {
 	var processedPath string
 	homeDir, err := os.UserHomeDir()
