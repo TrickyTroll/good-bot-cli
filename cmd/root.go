@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -163,12 +164,21 @@ func setConfigInteraction() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	} else {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatalf("Got an error trying to find the home directory.\n%s", err)
+		}
+		var configFile string = filepath.Join(homeDir, ".good-bot-cli.yaml")
 		if askSetConfig() {
 			fmt.Println("Ok. Setting up your configuration file now.")
 			setConfig()
 		} else {
 			fmt.Println("Ok. Won't be setting a configuration file for now.")
-			os.Create(viper.ConfigFileUsed())
+			// Writing an empty line
+			err = ioutil.WriteFile(configFile, []byte("\n"), 0644)
+			if err != nil {
+				log.Printf("Could not write an empty configuration file %s\n%s", configFile, err)
+			}
 		}
 	}
 }
