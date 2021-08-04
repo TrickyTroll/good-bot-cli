@@ -26,7 +26,6 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
@@ -71,7 +70,10 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		// Find home directory.
-		home, err := homedir.Dir()
+		home, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
 		cobra.CheckErr(err)
 
 		// Search config in home directory with name ".good-bot-cli" (without extension).
