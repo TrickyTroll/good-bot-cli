@@ -98,8 +98,26 @@ func initConfig() {
 // Stat on the path. If there is no error using Stat, validatePath returns
 // true, else it returns false.
 func validatePath(path string) bool {
-	_, err := os.Stat(path)
+	fullPath, err := filepath.Abs(path)
+	// TODO: return the error in a next version of validatePath
+	if err != nil {
+		panic(err)
+	}
+	_, err = os.Stat(fullPath)
 	return err == nil
+}
+
+func processPath(path string) (string, error) {
+	var processedPath string
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	if strings.HasPrefix(path, "~") {
+		processedPath = filepath.Join(homeDir, path[1:])
+	}
+
+	return processedPath, nil
 }
 
 // getDir gets the directory where a file is saved. The path returned by
