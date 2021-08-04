@@ -135,6 +135,11 @@ func processPath(path string) (string, error) {
 	return processedPath, nil
 }
 
+// mergeProcessedPaths merges prefix and path to create an absolute path from a
+// relative path. prefix should be determined prior to running this function.
+//
+// If the length of path is smaller than 1, an empty string is returned along
+// with an error.
 func mergeProcessedPaths(prefix, path string) (string, error) {
 	var joinedPaths string
 	if len(path) > 2 {
