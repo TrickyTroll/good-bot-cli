@@ -98,12 +98,12 @@ func initConfig() {
 // Stat on the path. If there is no error using Stat, validatePath returns
 // true, else it returns false.
 func validatePath(path string) bool {
-	fullPath, err := filepath.Abs(path)
+	processed, err := processPath(path)
 	// TODO: return the error in a next version of validatePath
 	if err != nil {
 		panic(err)
 	}
-	_, err = os.Stat(fullPath)
+	_, err = os.Stat(processed)
 	return err == nil
 }
 
