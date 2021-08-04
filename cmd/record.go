@@ -48,6 +48,7 @@ If the argument is already a directory created by the
 setup command, this command will only use the record
 command to create the recordings.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		setConfigInteraction()
 		dockerCheck()
 		credentials := copyCredentials()
 		isDir, err := isDirectory(args[0])
@@ -123,7 +124,6 @@ func init() {
 audio recordings. No gifs or mp4 files are produced.`)
 	recordCmd.Flags().StringVarP(&language, "language", "l", "en-US", "Which language code to use for the narration.")
 	recordCmd.Flags().StringVarP(&languageName, "language-name", "n", "en-US-Standard-C", "Which language name to use for the narration.")
-	setConfigInteraction()
 }
 
 // runRecordCommand uses Good Bot's record command to record a project.
