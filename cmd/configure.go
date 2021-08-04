@@ -153,7 +153,7 @@ func promptCredentials() (credentialsPaths, error) {
 					if len(str) == 0 {
 						return nil
 					}
-					return errors.New("the path provided does not seem to be valid")
+					return fmt.Errorf("the path: %s does not seem to be valid", str)
 				}
 				return nil
 			},
@@ -171,7 +171,7 @@ func promptCredentials() (credentialsPaths, error) {
 					if len(str) == 0 {
 						return nil
 					}
-					return errors.New("the path provided does not seem to be valid")
+					return fmt.Errorf("the path: %s does not seem to be valid", str)
 				}
 				return nil
 			},
