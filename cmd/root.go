@@ -117,6 +117,12 @@ func processPath(path string) (string, error) {
 			return "", err
 		}
 		processedPath = filepath.Join(homeDir, path[1:])
+	} else if strings.HasPrefix(path, ".."){
+		currentDir, err := os.Getwd()
+		if err != nil {
+			return "", err
+		}
+		processedPath = filepath.Join(currentDir, path[1:])
 	} else if strings.HasPrefix(path, ".") {
 		currentDir, err := os.Getwd()
 		if err != nil {
