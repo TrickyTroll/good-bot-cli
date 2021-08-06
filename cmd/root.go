@@ -107,7 +107,7 @@ func validatePath(path string) bool {
 // towards the parent directory of the current working
 // directory.
 //
-// If te path starts with ".", "." is replaced by the current
+// If the path starts with ".", "." is replaced by the current
 // working directory.
 //
 // If any error is encountered while trying to find the user's
