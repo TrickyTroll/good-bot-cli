@@ -123,7 +123,7 @@ func processPath(path string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		processedPath, err = mergeProcessedPaths(homeDir, path[1:])
+		processedPath, err = mergeProcessedPaths(homeDir, path)
 		if err != nil {
 			return "", err
 		}
@@ -133,7 +133,7 @@ func processPath(path string) (string, error) {
 			return "", err
 		}
 		parentDir := filepath.Dir(currentDir)
-		processedPath, err = mergeProcessedPaths(parentDir, path[1:])
+		processedPath, err = mergeProcessedPaths(parentDir, path)
 		if err != nil {
 			return "", err
 		}
@@ -142,7 +142,7 @@ func processPath(path string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		processedPath, err = mergeProcessedPaths(currentDir, path[1:])
+		processedPath, err = mergeProcessedPaths(currentDir, path)
 		if err != nil {
 			return "", err
 		}
