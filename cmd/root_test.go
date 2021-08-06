@@ -20,7 +20,7 @@ func TestValidatePath(t *testing.T) {
 		input string
 		want  bool
 	}{
-		{"", false},
+		{"", true},
 		{"/", true},
 		{"/usr/", true},
 		{"/foobar/", false},
