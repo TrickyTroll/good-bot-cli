@@ -103,6 +103,13 @@ func validatePath(path string) bool {
 // If the path starts with a "~" character, "~" is replaced by
 // the full path to the user's home directory.
 //
+// If the path starts with "..", ".." is replaced by the path
+// towards the parent directory of the current working
+// directory.
+//
+// If te path starts with ".", "." is replaced by the current
+// working directory.
+//
 // If any error is encountered while trying to find the user's
 // home directory, or while getting an absolute path, the error
 // is returned.
