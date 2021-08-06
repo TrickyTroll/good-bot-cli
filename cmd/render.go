@@ -49,10 +49,14 @@ rendered afterwards using this command.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		setConfigInteraction()
 		dockerCheck()
+		processedPath, err := processPath(args[0])
+		if err != nil {
+			log.Fatalf("Got error trying to process the agrument '%s'. Error was:\n%s", args[0], err)
+		}
 		// First argument should be the project path.
-		renderAllRecordings(args[0])
+		renderAllRecordings(processedPath)
 		if !gifsOnly {
-			renderVideo(args[0])
+			renderVideo(processedPath)
 		}
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
