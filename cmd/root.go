@@ -170,7 +170,7 @@ func mergeProcessedPaths(prefix, path string) (string, error) {
 	} else if len(path) == 1 {
 		joinedPaths = filepath.Join(prefix, path)
 	} else {
-		err := fmt.Errorf("path '%s' provided was invalid, had length %d", path, len(path))
+		err := fmt.Errorf("mergeProcessedPaths error: path '%s' provided was invalid, had length %d", path, len(path))
 		return "", err
 	}
 	return joinedPaths, nil
