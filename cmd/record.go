@@ -50,17 +50,21 @@ command to create the recordings.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		setConfigInteraction()
 		dockerCheck()
+		processedArg, err := processPath(args[0])
+		if err != nil {
+			log.Fatalf("Got error trying to process the agrument '%s'. Error was:\n%s", args[0], err)
+		}
 		credentials := copyCredentials()
-		isDir, err := isDirectory(args[0])
+		isDir, err := isDirectory(processedArg)
 		if err != nil {
 			log.Fatal(err)
 		}
 		if isDir {
-			runRecordCommand(args[0], credentials.ttsFile, credentials.passwords, &languageSettings{language, languageName})
+			runRecordCommand(processedArg, credentials.ttsFile, credentials.passwords, &languageSettings{language, languageName})
 			if !noRender {
-				renderAllRecordings(args[0])
+				renderAllRecordings(processedArg)
 				if !gifsOnly {
-					renderVideo(args[0])
+					renderVideo(processedArg)
 				}
 			}
 		} else {
@@ -71,7 +75,7 @@ command to create the recordings.`,
 			// if !noRender {
 			// 	renderProject("Toto")
 			// }
-			fmt.Printf("Cannot create a video from %s.\n", args[0])
+			fmt.Printf("Cannot create a video from %s.\n", processedArg)
 			fmt.Println("Please make sure that you used the setup command first.")
 			os.Exit(1)
 		}
