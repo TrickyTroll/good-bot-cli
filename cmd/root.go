@@ -116,19 +116,29 @@ func processPath(path string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		processedPath = filepath.Join(homeDir, path[1:])
+		processedPath, err = mergeProcessedPaths(homeDir, path[1:])
+		if err != nil {
+			return "", err
+		}
 	} else if strings.HasPrefix(path, ".."){
 		currentDir, err := os.Getwd()
 		if err != nil {
 			return "", err
 		}
-		processedPath = filepath.Join(currentDir, path[1:])
+		parentDir := filepath.Dir(currentDir)
+		processedPath, err = mergeProcessedPaths(parentDir, path[1:])
+		if err != nil {
+			return "", err
+		}
 	} else if strings.HasPrefix(path, ".") {
 		currentDir, err := os.Getwd()
 		if err != nil {
 			return "", err
 		}
-		processedPath = filepath.Join(currentDir, path[1:])
+		processedPath, err = mergeProcessedPaths(currentDir, path[1:])
+		if err != nil {
+			return "", err
+		}
 	} else {
 		// This is in an else statement because the first if
 		// guarantees an absolute path.
