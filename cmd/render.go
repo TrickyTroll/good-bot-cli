@@ -478,13 +478,15 @@ func getRecsPaths(projectPath string) []string {
 		scenePath := filepath.Join(projectPath, dir.Name())
 		// Make sure that it is a scene
 		var sceneRecordings []string
+		var isScene bool = false
 		if strings.Contains(dir.Name(), "scene_"){
 			sceneRecordings, err = getSceneCasts(scenePath)
+			if err != nil {
+				log.Printf("Got error trying to find recordings in scene %s.\n%s", scenePath, err)
+			}
+			isScene = true
 		}
-		if err != nil {
-			log.Printf("Got error trying to find recordings in scene %s.\n%s", scenePath, err)
-		}
-		if len(sceneRecordings) == 0 {
+		if len(sceneRecordings) == 0 && isScene {
 			log.Printf("Found no recordings in scene %s\n", scenePath)
 		}
 		allPaths = append(allPaths, sceneRecordings...)
