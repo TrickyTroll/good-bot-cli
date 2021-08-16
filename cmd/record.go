@@ -157,11 +157,14 @@ func runRecordCommand(hostPath string, ttsFile string, envVars []string, setting
 		panic(err)
 	}
 
-	reader, err := cli.ImagePull(ctx, "trickytroll/good-bot:latest", types.ImagePullOptions{})
-	if err != nil {
-		panic(err)
+
+	if !imageExists("trickytroll/good-bot:latest", ctx, cli) {
+		reader, err := cli.ImagePull(ctx, "trickytroll/good-bot:latest", types.ImagePullOptions{})
+		if err != nil {
+			panic(err)
+		}
+		io.Copy(os.Stdout, reader)
 	}
-	io.Copy(os.Stdout, reader)
 
 	stats, err := os.Stat(hostPath)
 	if err != nil {

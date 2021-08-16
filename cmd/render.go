@@ -117,11 +117,13 @@ func renderAllRecordings(projectPath string) {
 		panic(err)
 	}
 
-	reader, err := cli.ImagePull(ctx, "asciinema/asciicast2gif", types.ImagePullOptions{})
-	if err != nil { // If no reader the rest of the program won't work.
-		panic(err)
+	if !imageExists("asciinema/asciicast2gif", ctx, cli) {
+		reader, err := cli.ImagePull(ctx, "asciinema/asciicast2gif", types.ImagePullOptions{})
+		if err != nil { // If no reader the rest of the program won't work.
+			panic(err)
+		}
+		io.Copy(os.Stdout, reader) // Print container info to stdout.
 	}
-	io.Copy(os.Stdout, reader) // Print container info to stdout.
 
 	toRecord := getRecsPaths(projectPath)
 	for _, item := range toRecord {
@@ -275,11 +277,13 @@ func renderVideo(projectPath string) string {
 		panic(err)
 	}
 
-	reader, err := cli.ImagePull(ctx, "trickytroll/good-bot:latest", types.ImagePullOptions{})
-	if err != nil {
-		panic(err)
+	if !imageExists("trickytroll/good-bot:latest", ctx, cli) {
+		reader, err := cli.ImagePull(ctx, "trickytroll/good-bot:latest", types.ImagePullOptions{})
+		if err != nil {
+			panic(err)
+		}
+		io.Copy(os.Stdout, reader)
 	}
-	io.Copy(os.Stdout, reader)
 
 	stats, err := os.Stat(projectPath)
 	if err != nil {

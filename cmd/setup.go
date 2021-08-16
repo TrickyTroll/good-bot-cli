@@ -107,11 +107,13 @@ func runSetupCommand(filePath string, containerPath string) {
 		panic(err)
 	}
 
-	reader, err := cli.ImagePull(ctx, "trickytroll/good-bot:latest", types.ImagePullOptions{})
-	if err != nil { // If no reader the rest of the program won't work.
-		panic(err)
+	if !imageExists("trickytroll/good-bot", ctx, cli) {
+		reader, err := cli.ImagePull(ctx, "trickytroll/good-bot:latest", types.ImagePullOptions{})
+		if err != nil { // If no reader the rest of the program won't work.
+			panic(err)
+		}
+		io.Copy(os.Stdout, reader) // Print container info to stdout.
 	}
-	io.Copy(os.Stdout, reader) // Print container info to stdout.
 
 	// Script and infos are written in containerPath. The directory
 	// where the script resides on the host will be mounted to containerPath.
