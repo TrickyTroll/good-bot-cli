@@ -98,11 +98,12 @@ func imageExists(imageName string, ctx context.Context, cli *client.Client) bool
 	}
 
 	for _, image := range images{
-		if strings.Contains(image.ID, imageName){
-			return true
+		for _, tag := range image.RepoTags{
+				if strings.Contains(tag, imageName) {
+				return true
+			}
 		}
 	}
-
 	return false
 }
 
