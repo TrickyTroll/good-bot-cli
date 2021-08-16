@@ -17,11 +17,13 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
+
 	"github.com/docker/docker/api/types"
-	"github.com/spf13/cobra"
 	"github.com/docker/docker/client"
+	"github.com/spf13/cobra"
 )
 
 // updateCmd represents the update command
@@ -36,6 +38,7 @@ changelog.
 
 It updates every image if no argument is provided.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Updating images...")
 		if len(args) > 0 {
 			update(args)
 		} else {
@@ -63,6 +66,7 @@ func update(toUpdate []string) {
 
 	for _, imageName := range toUpdate {
 
+		fmt.Printf("Updating %s\n", imageName)
 		ctx := context.Background()
 		cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 		if err != nil { // cli fails nothing else will work. Should panic.
