@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -25,6 +26,8 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -82,6 +85,22 @@ func initConfig() {
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
+}
+
+func imageExists(imageName string, ctx context.Context, cli *client.Client) bool {
+
+	images, err := cli.ImageList(ctx, types.ImageListOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, image := range images{
+		if strings.Contains(image.ID, imageName){
+			return true
+		}
+	}
+
+	return false
 }
 
 // validatePath checks whether or not a path exists. The check is done using
