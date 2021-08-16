@@ -87,6 +87,9 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 }
 
+// imageExists uses the Docker SDK to check if the provided image name
+// exists on the host. It uses the ImageList function provided by the
+// SDK's client type.
 func imageExists(imageName string, ctx context.Context, cli *client.Client) bool {
 
 	images, err := cli.ImageList(ctx, types.ImageListOptions{})
